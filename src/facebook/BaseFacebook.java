@@ -762,7 +762,7 @@ abstract public class BaseFacebook
    *          the params
    * @return string The decoded response object
    */
-  protected JSONObject _oauthRequest(String url, String params)
+  protected String _oauthRequest(String url, String params)
   {
     /*
      * TODO Translate if (!isset($params['access_token'])) {
@@ -788,7 +788,7 @@ abstract public class BaseFacebook
    *          the params
    * @return string The response text
    */
-  protected JSONObject makeRequest(String url, String params)
+  protected String makeRequest(String url, String params)
   {
     return makeRequest(url, params, '\0');
   }
@@ -806,7 +806,7 @@ abstract public class BaseFacebook
    *          the ch
    * @return string The response text
    */
-  protected JSONObject makeRequest(String url, String params, char ch)
+  protected String makeRequest(String url, String params, char ch)
   {
     /*
      * TODO Translate if (!$ch) { $ch = curl_init(); }
