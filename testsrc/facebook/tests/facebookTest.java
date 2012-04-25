@@ -42,6 +42,7 @@ public class facebookTest
        */
       @Test
       public void testConstructor() {
+        fail("Not implemented.");
         /* TODO Translate
         BaseFacebook facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -59,6 +60,7 @@ public class facebookTest
        */
       @Test
       public void testConstructorWithFileUpload() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"      => self::APP_ID,
@@ -82,6 +84,7 @@ public class facebookTest
        */
       @Test
       public void testSetAppId() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -98,6 +101,7 @@ public class facebookTest
        */
       @Test
       public void testSetAPISecret() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -114,6 +118,7 @@ public class facebookTest
        */
       @Test
       public void testSetAPPSecret() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -130,6 +135,7 @@ public class facebookTest
        */
       @Test
       public void testSetAccessToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -147,6 +153,7 @@ public class facebookTest
        */
       @Test
       public void testSetFileUploadSupport() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -171,6 +178,7 @@ public class facebookTest
        */
       @Test
       public void testGetCurrentURL() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBGetCurrentURLFacebook(array(
           "appId"  => self::APP_ID,
@@ -213,6 +221,7 @@ public class facebookTest
        */
       @Test
       public void testGetLoginURL() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new Facebook(array(
           "appId"  => self::APP_ID,
@@ -244,6 +253,7 @@ public class facebookTest
        */
       @Test
       public void testGetLoginURLWithExtraParams() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new Facebook(array(
           "appId"  => self::APP_ID,
@@ -278,6 +288,7 @@ public class facebookTest
        */
       @Test
       public void testGetLoginURLWithScopeParamsAsArray() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new Facebook(array(
           "appId"  => self::APP_ID,
@@ -317,6 +328,7 @@ public class facebookTest
        */
       @Test
       public void testGetCodeWithValidCSRFState() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBCode(array(
           "appId"  => self::APP_ID,
@@ -337,6 +349,7 @@ public class facebookTest
        */
       @Test
       public void testGetCodeWithInvalidCSRFState() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBCode(array(
           "appId"  => self::APP_ID,
@@ -356,6 +369,7 @@ public class facebookTest
        */
       @Test
       public void testGetCodeWithMissingCSRFState() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBCode(array(
           "appId"  => self::APP_ID,
@@ -374,6 +388,7 @@ public class facebookTest
        */
       @Test
       public void testGetUserFromSignedRequest() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -391,6 +406,7 @@ public class facebookTest
        */
       @Test
       public void testGetSignedRequestFromCookie() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBGetSignedRequestCookieFacebook(array(
           "appId"  => self::APP_ID,
@@ -410,6 +426,7 @@ public class facebookTest
        */
       @Test
       public void testGetSignedRequestWithIncorrectSignature() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBGetSignedRequestCookieFacebook(array(
           "appId"  => self::APP_ID,
@@ -427,6 +444,7 @@ public class facebookTest
        */
       @Test
       public void testNonUserAccessToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBAccessToken(array(
           "appId"  => self::APP_ID,
@@ -446,6 +464,7 @@ public class facebookTest
        */
       @Test
       public void testAPIForLoggedOutUsers() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -467,6 +486,7 @@ public class facebookTest
        */
       @Test
       public void testAPIWithBogusAccessToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -500,6 +520,7 @@ public class facebookTest
        */
       @Test
       public void testAPIGraphPublicData() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -517,6 +538,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIWithBogusAccessToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -541,6 +563,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIWithExpiredAccessToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -565,6 +588,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIMethod() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -591,6 +615,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIOAuthSpecError() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::MIGRATED_APP_ID,
@@ -617,6 +642,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIMethodOAuthSpecError() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::MIGRATED_APP_ID,
@@ -638,6 +664,7 @@ public class facebookTest
        */
       @Test
       public void testCurlFailure() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -673,6 +700,7 @@ public class facebookTest
        */
       @Test
       public void testGraphAPIWithOnlyParams() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -705,6 +733,7 @@ public class facebookTest
        */
       @Test
       public void testLoginURLDefaults() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -723,6 +752,7 @@ public class facebookTest
        */
       @Test
       public void testLoginURLDefaultsDropStateQueryParam() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples?state=xx42xx";
@@ -743,6 +773,7 @@ public class facebookTest
        */
       @Test
       public void testLoginURLDefaultsDropCodeQueryParam() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples?code=xx42xx";
@@ -763,6 +794,7 @@ public class facebookTest
        */
       @Test
       public void testLoginURLDefaultsDropSignedRequestParamButNotOthers() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] =
@@ -784,6 +816,7 @@ public class facebookTest
        */
       @Test
       public void testLoginURLCustomNext() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -810,6 +843,7 @@ public class facebookTest
        */
       @Test
       public void testLogoutURLDefaults() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -828,6 +862,7 @@ public class facebookTest
        */
       @Test
       public void testLoginStatusURLDefaults() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -846,6 +881,7 @@ public class facebookTest
        */
       @Test
       public void testLoginStatusURLCustom() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -871,6 +907,7 @@ public class facebookTest
        */
       @Test
       public void testNonDefaultPort() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com:8080";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -889,6 +926,7 @@ public class facebookTest
        */
       @Test
       public void testSecureCurrentUrl() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -908,6 +946,7 @@ public class facebookTest
        */
       @Test
       public void testSecureCurrentUrlWithNonDefaultPort() {
+        fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com:8080";
         $_SERVER["REQUEST_URI"] = "/examples";
@@ -927,6 +966,7 @@ public class facebookTest
        */
       @Test
       public void testAppSecretCall() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -955,6 +995,7 @@ public class facebookTest
        */
       @Test
       public void testBase64UrlEncode() {
+        fail("Not implemented.");
         /* TODO Translate
         $input = "Facebook rocks";
         $output = "RmFjZWJvb2sgcm9ja3M";
@@ -968,6 +1009,7 @@ public class facebookTest
        */
       @Test
       public void testSignedToken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBPublic(array(
           "appId"  => self::APP_ID,
@@ -986,6 +1028,7 @@ public class facebookTest
        */
       @Test
       public void testNonTossedSignedtoken() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBPublic(array(
           "appId"  => self::APP_ID,
@@ -1006,6 +1049,7 @@ public class facebookTest
        */
       @Test
       public void testBundledCACert() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
           "appId"  => self::APP_ID,
@@ -1028,6 +1072,7 @@ public class facebookTest
        */
       @Test
       public void testVideoUpload() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBRecordURL(array(
           "appId"  => self::APP_ID,
@@ -1045,6 +1090,7 @@ public class facebookTest
        */
       @Test
       public void testGetUserAndAccessTokenFromSession() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(
                                              "appId"  => self::APP_ID,
@@ -1068,6 +1114,7 @@ public class facebookTest
        */
       @Test
       public void testGetUserAndAccessTokenFromSignedRequestNotSession() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(
                                              "appId"  => self::APP_ID,
@@ -1097,6 +1144,7 @@ public class facebookTest
        */
       @Test
       public void testGetUserWithoutCodeOrSignedRequestOrSession() {
+        fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(
                                              "appId"  => self::APP_ID,
@@ -1122,6 +1170,7 @@ public class facebookTest
        * Generate m d5 hash of random value.
        */
       protected void generateMD5HashOfRandomValue() {
+        fail("Not implemented.");
         /* TODO Translate
         return md5(uniqid(mt_rand(), true));
         */
