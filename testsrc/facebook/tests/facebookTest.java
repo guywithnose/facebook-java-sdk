@@ -359,16 +359,16 @@ public class facebookTest
     TransientFacebook facebook = new TransientFacebook(config, req);
     try
     {
-      Object response = facebook.api(new HashMap<String, String>()
+      JSONObject response = facebook.api(new HashMap<String, String>()
       {
         {
           put("method", "fql.query");
           put("query", "SELECT name FROM user WHERE uid=4");
         }
       });
-      assertTrue(response instanceof JSONArray);
-      assertEquals("Expect one row back.", ((JSONArray) response).length(), 1);
-      assertEquals("Expect the name back.", ((JSONArray) response)
+      assertEquals("Expect one row back.", response.getJSONArray("data")
+          .length(), 1);
+      assertEquals("Expect the name back.", response.getJSONArray("data")
           .getJSONObject(0).getString("name"), "Mark Zuckerberg");
     } catch (FacebookApiException e)
     {
@@ -415,24 +415,24 @@ public class facebookTest
       }
     }
   }
-      
-      /**
-       * Tests the APIGraphPublicData method.
-       */
-      @Test
-      public void testAPIGraphPublicData() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $response = $facebook->api("/jerry");
-        assertEquals(
-          $response["id"], "214707", "should get expected id.");
-          */
-      }
+  /**
+   * Tests the APIGraph method using public data.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   * @throws FacebookApiException
+   *           the facebook api exception
+   */
+  @Test
+  public void testAPIGraph_PublicData() throws JSONException, FacebookApiException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    JSONObject response = facebook.api("/jerry");
+    assertEquals("should get expected id.", response.get("id"), "214707");
+  }
       
       /**
        * Tests the graphAPIWithBogusAccessToken method.

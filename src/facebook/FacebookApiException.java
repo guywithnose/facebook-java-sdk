@@ -1,13 +1,11 @@
 package facebook;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * The Class FacebookApiException.
  */
-@SuppressWarnings("static-method")
 public class FacebookApiException extends Exception
 {
   /**
@@ -68,6 +66,7 @@ public class FacebookApiException extends Exception
     return result;
   }
   
+  @Override
   public String getMessage()
   {
     return message;

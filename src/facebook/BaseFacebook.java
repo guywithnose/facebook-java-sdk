@@ -104,6 +104,7 @@ abstract public class BaseFacebook
    */
   protected boolean fileUploadSupport = false;
 
+  /** The req. */
   protected HttpServletRequest req;
   
   /**
@@ -337,6 +338,13 @@ abstract public class BaseFacebook
      return signedRequest;
   }
   
+  /**
+   * Gets the cookie.
+   * 
+   * @param name
+   *          the name
+   * @return the cookie
+   */
   protected String getCookie(String name)
   {
     Cookie[] cookies = req.getCookies();
@@ -537,7 +545,7 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  public Object api(HashMap<String, String> params) throws FacebookApiException
+  public JSONObject api(HashMap<String, String> params) throws FacebookApiException
   {
     return _restserver(params); 
   }
@@ -548,8 +556,10 @@ abstract public class BaseFacebook
    * @param path
    *          the path
    * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  public JSONObject api(String path)
+  public JSONObject api(String path) throws FacebookApiException
   {
     return _graph(path);
   }
@@ -563,8 +573,10 @@ abstract public class BaseFacebook
    * @param method
    *          the method
    * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  public JSONObject api(String path, String method)
+  public JSONObject api(String path, String method) throws FacebookApiException
   {
     return _graph(path, method);
   }
@@ -579,9 +591,11 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
   public JSONObject api(String path, String method,
-      HashMap<String, String> params)
+      HashMap<String, String> params) throws FacebookApiException
   {
     return _graph(path, method, params);
   }
@@ -758,17 +772,18 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return mixed The decoded response object
-   * @throws FacebookApiException 
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  protected Object _restserver(HashMap<String, String> params) throws FacebookApiException
+  protected JSONObject _restserver(HashMap<String, String> params)
+      throws FacebookApiException
   {
     // generic application level parameters
     params.put("api_key", getAppId());
     params.put("format", "json-strings");
 
-    Object result = new JSONObject();
-    String response = _oauthRequest(getApiUrl(params.get("method")),
-        params);
+    JSONObject result = new JSONObject();
+    String response = _oauthRequest(getApiUrl(params.get("method")), params);
     try
     {
       result = new JSONObject(response);
@@ -776,7 +791,7 @@ abstract public class BaseFacebook
     {
       try
       {
-        result = new JSONArray(response);
+        result.put("data", new JSONArray(response));
       } catch (JSONException e1)
       {
         throwAPIException(result);
@@ -784,7 +799,7 @@ abstract public class BaseFacebook
     }
 
     // results are returned, errors are thrown
-    if (result instanceof JSONObject && ((JSONObject)result).has("error_code"))
+    if (result.has("error_code"))
     {
       throwAPIException(result);
     }
@@ -834,8 +849,10 @@ abstract public class BaseFacebook
    * @param path
    *          the path
    * @return mixed The decoded response object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  protected JSONObject _graph(String path)
+  protected JSONObject _graph(String path) throws FacebookApiException
   {
     return _graph(path, "GET");
   }
@@ -848,10 +865,28 @@ abstract public class BaseFacebook
    * @param method
    *          the method
    * @return mixed The decoded response object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  protected JSONObject _graph(String path, String method)
+  protected JSONObject _graph(String path, String method) throws FacebookApiException
   {
     return _graph(path, method, new HashMap<String, String>());
+  }
+
+  /**
+   * _graph.
+   * 
+   * @param path
+   *          the path
+   * @param params
+   *          the params
+   * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
+   */
+  protected JSONObject _graph(String path, HashMap<String, String> params) throws FacebookApiException
+  {
+    return _graph(path, "GET", new HashMap<String, String>());
   }
 
   /**
@@ -864,27 +899,40 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return mixed The decoded response object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
   protected JSONObject _graph(String path, String method,
-      HashMap<String, String> params)
+      HashMap<String, String> params) throws FacebookApiException
   {
-    /*
-     * TODO Translate if (is_array($method) && empty($params)) { $params =
-     * $method; $method = 'GET'; } $params["method"] = $method; // method
-     * override as we always do a POST
-     * 
-     * if (isVideoPost($path, $method)) { $domainKey = "graph_video"; } else {
-     * $domainKey = "graph"; }
-     * 
-     * $result = json_decode(_oauthRequest( getUrl($domainKey, $path), $params
-     * ), true);
-     * 
-     * // results are returned, errors are thrown if (is_array($result) &&
-     * isset($result['error'])) { throwAPIException($result); }
-     * 
-     * return $result;
-     */
-    return null;
+    params.put("method", method);
+    // method override as we always do a POST
+
+    String domainKey;
+    if (isVideoPost(path, method))
+    {
+      domainKey = "graph_video";
+    } else
+    {
+      domainKey = "graph";
+    }
+
+    JSONObject result = new JSONObject();
+    try
+    {
+      result = new JSONObject(_oauthRequest(getUrl(domainKey, path), params));
+    } catch (JSONException e)
+    {
+      throwAPIException(result);
+    }
+
+    // results are returned, errors are thrown
+    if (result.has("error"))
+    {
+      throwAPIException(result);
+    }
+
+    return result;
   }
 
   /**
@@ -954,7 +1002,7 @@ abstract public class BaseFacebook
 
       // check sig
       byte[] expected_sig = computeSignature(payload, getAppSecret());
-      if (!compateSignatures(sig, expected_sig))
+      if (!compareSignatures(sig, expected_sig))
       {
         errorLog("Bad Signed JSON signature!");
         return null;
@@ -968,7 +1016,16 @@ abstract public class BaseFacebook
     }
   }
   
-  private boolean compateSignatures(String sig1, byte[] sig2)
+  /**
+   * Compare signatures.
+   * 
+   * @param sig1
+   *          the sig1
+   * @param sig2
+   *          the sig2
+   * @return true, if successful
+   */
+  private boolean compareSignatures(String sig1, byte[] sig2)
   {
     if(sig1.length() != sig2.length)
       return false;
@@ -983,6 +1040,15 @@ abstract public class BaseFacebook
     return true;
   }
   
+  /**
+   * Compute signature.
+   * 
+   * @param baseString
+   *          the base string
+   * @param keyString
+   *          the key string
+   * @return the byte[]
+   */
   private static byte[] computeSignature(String baseString, String keyString)
   {
 
@@ -1153,6 +1219,13 @@ abstract public class BaseFacebook
     return url;
   }
 
+  /**
+   * Http_build_query.
+   * 
+   * @param params
+   *          the params
+   * @return the string
+   */
   private String http_build_query(HashMap<String, String> params)
   {
     StringBuilder query = new StringBuilder();
@@ -1242,6 +1315,8 @@ abstract public class BaseFacebook
    * 
    * @param result
    *          the result
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
   protected void throwAPIException(Object result) throws FacebookApiException
   {
