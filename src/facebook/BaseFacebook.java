@@ -1146,14 +1146,9 @@ abstract public class BaseFacebook
    * @param msg
    *          the msg
    */
-  protected static void errorLog(String msg)
+  protected void errorLog(String msg)
   {
-    // disable error log if we are running in a CLI environment
-    // @codeCoverageIgnoreStart
     System.err.println(msg);
-    // uncomment this if you want to see the errors on the page
-    // print 'error_log: '.$msg."\n";
-    // @codeCoverageIgnoreEnd
   }
 
   /**

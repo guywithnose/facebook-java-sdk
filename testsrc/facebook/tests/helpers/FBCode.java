@@ -14,6 +14,7 @@ import facebook.Facebook;
  */
 public class FBCode extends Facebook {
   
+  private String errorMessage;
 
   /**
    * Instantiates a new fB code.
@@ -52,4 +53,21 @@ public class FBCode extends Facebook {
   public String getCSRFStateToken() {
     return getPersistentData("state");
   }
+  
+  @Override
+  protected void errorLog(String msg)
+  {
+    errorMessage = msg;
+  }
+  
+  /**
+   * Gets the last error.
+   * 
+   * @return the last error
+   */
+  public String getLastError()
+  {
+    return errorMessage;
+  }
+  
 }

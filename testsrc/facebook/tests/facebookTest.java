@@ -234,10 +234,10 @@ public class facebookTest
   }
 
   /**
-   * Tests the getCodeWithValidCSRFState method.
+   * Tests the getCode method using valid csrf state.
    */
   @Test
-  public void testGetCodeWithValidCSRFState()
+  public void testGetCode_ValidCSRFState()
   {
     // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
@@ -250,26 +250,25 @@ public class facebookTest
     assertEquals("Expect code to be pulled from $_REQUEST[\"code\"]", code,
         facebook.publicGetCode());
   }
-      
-      /**
-       * Tests the getCodeWithInvalidCSRFState method.
-       */
-      @Test
-      public void testGetCodeWithInvalidCSRFState() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBCode(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $facebook->setCSRFStateToken();
-        $code = $_REQUEST["code"] = generateMD5HashOfRandomValue();
-        $_REQUEST["state"] = $facebook->getCSRFStateToken()."forgery!!!";
-        assertFalse($facebook->publicGetCode(),
-                           "Expect getCode to fail, CSRF state should not match.");
-                           */
-      }
+  /**
+   * Tests the getCode method using invalid csrf state.
+   */
+  @Test
+  public void testGetCode_InvalidCSRFState()
+  {
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBCode facebook = new FBCode(config, req);
+
+    facebook.setCSRFStateToken();
+    req.setParameter("code", TransientFacebook.md5());
+    req.setParameter("state", facebook.getCSRFStateToken() + "forgery!!!");
+    assertNull("Expect getCode to fail, CSRF state should not match.",
+        facebook.publicGetCode());
+    assertEquals("CSRF state token does not match one provided.",
+        facebook.getLastError());
+  }
       
       /**
        * Tests the getCodeWithMissingCSRFState method.
