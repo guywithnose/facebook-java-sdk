@@ -5,13 +5,16 @@
 package facebook;
 
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,7 +81,7 @@ abstract public class BaseFacebook
   /**
    * The data from the signed_request token.
    */
-  protected String signedRequest;
+  protected JSONObject signedRequest;
 
   /**
    * A CSRF state variable to assist in the defense against CSRF attacks.
@@ -319,14 +322,30 @@ abstract public class BaseFacebook
    */
   public JSONObject getSignedRequest()
   {
-    /*
-     * TODO Translate if (!signedRequest) { if
-     * (isset($_REQUEST['signed_request'])) { signedRequest =
-     * parseSignedRequest( $_REQUEST['signed_request']); } else if
-     * (isset($_COOKIE[getSignedRequestCookieName()])) { signedRequest =
-     * parseSignedRequest( $_COOKIE[getSignedRequestCookieName()]); } } return
-     * signedRequest;
-     */
+     if (signedRequest == null) 
+     { 
+       if(req.getParameter("signed_request") != null) 
+       { 
+         signedRequest = parseSignedRequest(req.getParameter("signed_request")); 
+       } 
+       else if(getCookie(getSignedRequestCookieName()) != null) 
+       { 
+         signedRequest = parseSignedRequest(getCookie(getSignedRequestCookieName())); 
+       } 
+     }
+     return signedRequest;
+  }
+  
+  protected String getCookie(String name)
+  {
+    Cookie[] cookies = req.getCookies();
+    for(Cookie cookie : cookies)
+    {
+      if(cookie.getName().equals(name))
+      {
+        return cookie.getValue();
+      }
+    }
     return null;
   }
 
@@ -357,30 +376,50 @@ abstract public class BaseFacebook
    */
   protected long getUserFromAvailableData()
   {
-    /*
-     * TODO Translate // if a signed request is supplied, then it solely
-     * determines // who the user is. $signed_request = getSignedRequest(); if
-     * ($signed_request) { if (array_key_exists("user_id", signed_request)) {
-     * $user = $signed_request["user_id"]; setPersistentData("user_id",
-     * $signed_request["user_id"]); return $user; }
-     * 
-     * // if the signed request didn't present a user id, then invalidate // all
-     * entries in any persistent store. clearAllPersistentData(); return 0; }
-     * 
-     * $user = getPersistentData("user_id", $default = 0);
-     * $persisted_access_token = getPersistentData("access_token");
-     * 
-     * // use access_token to fetch user id if we have a user access_token, or
-     * if // the cached access token has changed. $access_token =
-     * getAccessToken(); if ($access_token && $access_token !=
-     * getApplicationAccessToken() && !($user && $persisted_access_token ==
-     * $access_token)) { $user = getUserFromAccessToken(); if ($user) {
-     * setPersistentData('user_id', $user); } else { clearAllPersistentData(); }
-     * }
-     * 
-     * return $user;
-     */
-    return 0;
+    // if a signed request is supplied, then it solely
+    // who the user is.
+    JSONObject signed_request = getSignedRequest();
+    if (signed_request != null)
+    {
+      if (signed_request.has("user_id"))
+      {
+        try
+        {
+          user = signed_request.getLong("user_id");
+        } catch (JSONException e)
+        {
+          e.printStackTrace();
+        }
+        setPersistentData("user_id", String.valueOf(user));
+        return user;
+      }
+
+      // if the signed request didn't present a user id, then invalidate
+      // all entries in any persistent store.
+      clearAllPersistentData();
+      return 0;
+    }
+
+    user = Long.valueOf(getPersistentData("user_id", "0"));
+    String persisted_access_token = getPersistentData("access_token");
+
+    // use access_token to fetch user id if we have a user access_token, or if
+    // the cached access token has changed.
+    String access_token = getAccessToken();
+    if (access_token != null && access_token != getApplicationAccessToken()
+        && (user == 0 || persisted_access_token != access_token))
+    {
+      user = getUserFromAccessToken();
+      if (user != 0)
+      {
+        setPersistentData("user_id", String.valueOf(user));
+      } else
+      {
+        clearAllPersistentData();
+      }
+    }
+
+    return user;
   }
 
   /**
@@ -601,16 +640,8 @@ abstract public class BaseFacebook
   {
     try
     {
-      String s = String.valueOf(Math.random());
-      MessageDigest m;
-      m = MessageDigest.getInstance("MD5");
-      m.update(s.getBytes(), 0, s.length());
-      String MD5 = new BigInteger(1, m.digest()).toString(16);
-      while (MD5.length() < 32)
-      {
-        MD5 = "f" + MD5;
-      }
-      return MD5;
+      String MD5 = new BigInteger((String.valueOf(Math.random())+String.valueOf(Math.random())+String.valueOf(Math.random())).replace(".", "")).toString(16);
+      return MD5.substring(0,32);
     } catch (Exception e)
     {
       return "";
@@ -872,24 +903,80 @@ abstract public class BaseFacebook
    */
   protected JSONObject parseSignedRequest(String signed_request)
   {
-    /*
-     * TODO Translate list($encoded_sig, $payload) = explode('.',
-     * $signed_request, 2);
-     * 
-     * // decode the data $sig = self::base64UrlDecode($encoded_sig); $data =
-     * json_decode(self::base64UrlDecode($payload), true);
-     * 
-     * if (strtoupper($data['algorithm']) !== 'HMAC-SHA256') {
-     * self::errorLog('Unknown algorithm. Expected HMAC-SHA256'); return null; }
-     * 
-     * // check sig $expected_sig = hash_hmac('sha256', $payload,
-     * getAppSecret(), $raw = true); if ($sig !== $expected_sig) {
-     * self::errorLog('Bad Signed JSON signature!'); return null; }
-     * 
-     * return $data;
-     */
-    return null;
+    try
+    {
+      String[] signedParts = signed_request.split("\\.");
+      if (signedParts.length != 2)
+        return null;
+      String encoded_sig = signedParts[0];
+      String payload = signedParts[1];
+      // decode the data 
+      JSONObject data = new JSONObject(base64UrlDecode(payload));
+      String sig = base64UrlDecode(encoded_sig);
+
+      if (!"HMAC-SHA256".equals(data.getString("algorithm").toUpperCase()))
+      {
+        errorLog("Unknown algorithm. Expected HMAC-SHA256");
+        return null;
+      }
+
+      // check sig
+      byte[] expected_sig = computeSignature(payload, getAppSecret());
+      if (!compateSignatures(sig, expected_sig))
+      {
+        errorLog("Bad Signed JSON signature!");
+        return null;
+      }
+
+      return data;
+    } catch (JSONException e)
+    {
+      e.printStackTrace();
+      return null;
+    }
   }
+  
+  private boolean compateSignatures(String sig1, byte[] sig2)
+  {
+    if(sig1.length() != sig2.length)
+      return false;
+    for(int i = 0; i < sig2.length; i++)
+    {
+      int translateByte = sig2[i];
+      if (translateByte < 0)
+        translateByte += 65536;
+      if(Integer.valueOf(sig1.charAt(i)) != translateByte)
+        return false;
+    }
+    return true;
+  }
+  
+  private static byte[] computeSignature(String baseString, String keyString)
+  {
+
+    try
+    {
+      
+      SecretKeySpec secretKey = null;
+
+      byte[] keyBytes = keyString.getBytes();
+      secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
+
+      Mac mac = Mac.getInstance("HmacSHA256");      
+
+      mac.init(secretKey);
+
+      byte[] text = baseString.getBytes();
+
+      return mac.doFinal(text);
+      
+    } catch (Exception e)
+    {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
 
   /**
    * Build the URL for api given parameters.
@@ -1161,10 +1248,12 @@ abstract public class BaseFacebook
    */
   protected static String base64UrlDecode(String input)
   {
-    /*
-     * TODO Translate return base64_decode(strtr($input, '-_', '+/'));
-     */
-    return null;
+    Base64 b64 = new Base64();
+    byte[] bytes = b64.decode(input);
+    String retVal = "";
+    for (int i = 0; i < bytes.length; i++)
+      retVal += (char) (bytes[i]);
+    return retVal.replace("+", "-").replace("/", "_");
   }
 
   /**

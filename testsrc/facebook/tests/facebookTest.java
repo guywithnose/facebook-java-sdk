@@ -14,6 +14,7 @@ import facebook.BaseFacebook;
 import facebook.Facebook;
 import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
+import facebook.tests.helpers.FBGetSignedRequestCookieFacebook;
 import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.TransientFacebook;
 
@@ -139,7 +140,6 @@ public class facebookTest
   @Test
   public void testGetCurrentURL()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php?one=one&two=two&three=three");
     FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config, req);
@@ -175,7 +175,6 @@ public class facebookTest
   @Test
   public void testGetLoginURL()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php");
     Facebook facebook = new Facebook(config, req);
@@ -196,7 +195,7 @@ public class facebookTest
     assertIsSubset(expected_login_params, query_map);
     // we don"t know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
-    assertEquals(query_map.get("state").length(), 32);
+    assertEquals(32, query_map.get("state").length());
   }
 
   /**
@@ -205,7 +204,6 @@ public class facebookTest
   @Test
   public void testGetLoginURL_ExtraParams()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php");
     Facebook facebook = new Facebook(config, req);
@@ -230,7 +228,7 @@ public class facebookTest
     assertIsSubset(expected_login_params, query_map);
     // we don"t know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
-    assertEquals(query_map.get("state").length(), 32);
+    assertEquals(32, query_map.get("state").length());
   }
 
   /**
@@ -239,7 +237,6 @@ public class facebookTest
   @Test
   public void testGetCode_ValidCSRFState()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     FBCode facebook = new FBCode(config, req);
 
@@ -257,7 +254,6 @@ public class facebookTest
   @Test
   public void testGetCode_InvalidCSRFState()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     FBCode facebook = new FBCode(config, req);
 
@@ -276,7 +272,6 @@ public class facebookTest
   @Test
   public void testGetCode_MissingCSRFState()
   {
-    // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     FBCode facebook = new FBCode(config, req);
 
@@ -287,44 +282,37 @@ public class facebookTest
     assertEquals("CSRF state token does not match one provided.",
         facebook.getLastError());
   }
-      
-      /**
-       * Tests the getUserFromSignedRequest method.
-       */
-      @Test
-      public void testGetUserFromSignedRequest() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $_REQUEST["signed_request"] = self::$kValidSignedRequest;
-        assertEquals("1677846385", $facebook->getUser(),
-                            "Failed to get user ID from a valid signed request.");
-                            */
-      }
-      
-      /**
-       * Tests the getSignedRequestFromCookie method.
-       */
-      @Test
-      public void testGetSignedRequestFromCookie() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBGetSignedRequestCookieFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
+  /**
+   * Tests the getUser method using signed request.
+   */
+  @Test
+  public void testGetUser_SignedRequest()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
 
-        $_COOKIE[$facebook->publicGetSignedRequestCookieName()] =
-          self::$kValidSignedRequest;
-        assertNotNull($facebook->publicGetSignedRequest());
-        assertEquals("1677846385", $facebook->getUser(),
-                            "Failed to get user ID from a valid signed request.");
-                            */
-      }
+    req.setParameter("signed_request", kValidSignedRequest);
+    assertEquals("Failed to get user ID from a valid signed request.",
+        1677846385, facebook.getUser());
+  }
+
+  /**
+   * Tests the getSignedRequest method using cookie.
+   */
+  @Test
+  public void testGetSignedRequest_Cookie()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBGetSignedRequestCookieFacebook facebook = new FBGetSignedRequestCookieFacebook(
+        config, req);
+
+    req.addCookie(facebook.publicGetSignedRequestCookieName(),
+        kValidSignedRequest);
+    assertNotNull(facebook.publicGetSignedRequest());
+    assertEquals("Failed to get user ID from a valid signed request.",
+        1677846385, facebook.getUser());
+  }
       
       /**
        * Tests the getSignedRequestWithIncorrectSignature method.
@@ -1162,6 +1150,13 @@ public class facebookTest
         return urlParts;
       }
       
+      /**
+       * Parse_str.
+       * 
+       * @param query
+       *          the query
+       * @return the hash map
+       */
       protected HashMap<String, String> parse_str(String query)
       {
         HashMap<String, String> params = new HashMap<String, String>();

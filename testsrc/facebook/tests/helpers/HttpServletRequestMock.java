@@ -108,6 +108,7 @@ public class HttpServletRequestMock implements HttpServletRequest
   public HttpServletRequestMock(Map<String, String> Parameters)
   {
     parameters = Parameters;
+    cookies = new ArrayList<Cookie>();
   }
 
   /**
