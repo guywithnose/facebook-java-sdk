@@ -6,7 +6,6 @@ package facebook;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,10 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import sun.security.provider.MD5;
-
-import com.sun.xml.internal.ws.util.StringUtils;
 
 import facebook.tests.helpers.HttpServletRequestMock;
 
@@ -36,16 +31,6 @@ abstract public class BaseFacebook
    * Version.
    */
   public static final String VERSION = "3.1.1";
-
-  /**
-   * Default options for curl.
-   */
-  /*
-   * TODO Convert this to a Java equivalent
-   * public static $CURL_OPTS = array(
-   * CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_RETURNTRANSFER => true,
-   * CURLOPT_TIMEOUT => 60, CURLOPT_USERAGENT => 'facebook-php-3.1', );
-   */
 
   /**
    * List of query parameters that get automatically dropped when rebuilding the
@@ -607,7 +592,12 @@ abstract public class BaseFacebook
       MessageDigest m;
       m = MessageDigest.getInstance("MD5");
       m.update(s.getBytes(), 0, s.length());
-      return new BigInteger(1, m.digest()).toString(16);
+      String MD5 = new BigInteger(1, m.digest()).toString(16);
+      while (MD5.length() < 32)
+      {
+        MD5 = "f" + MD5;
+      }
+      return MD5;
     } catch (Exception e)
     {
       return "";
@@ -827,26 +817,12 @@ abstract public class BaseFacebook
    */
   protected String makeRequest(String url, String params)
   {
-    return makeRequest(url, params, '\0');
-  }
-
-  /**
-   * Makes an HTTP request. This method can be overridden by subclasses if
-   * developers want to do fancier things or use something other than curl to
-   * make the request.
-   * 
-   * @param url
-   *          the url
-   * @param params
-   *          the params
-   * @param ch
-   *          the ch
-   * @return string The response text
-   */
-  protected String makeRequest(String url, String params, char ch)
-  {
+    JavaCurl.getUrl(url);
     /*
-     * TODO Translate if (!$ch) { $ch = curl_init(); }
+     * 
+     * public static $CURL_OPTS = array( CURLOPT_CONNECTTIMEOUT => 10,
+     * CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60, CURLOPT_USERAGENT
+     * => 'facebook-php-3.1', );
      * 
      * $opts = self::$CURL_OPTS; if (getFileUploadSupport()) {
      * $opts[CURLOPT_POSTFIELDS] = $params; } else { $opts[CURLOPT_POSTFIELDS] =
@@ -1104,7 +1080,7 @@ abstract public class BaseFacebook
     }
 
     return req.getProtocol() + "://" + req.getServerName() + (port != -1 ? port : "")
-        + req.getRequestURI() + query;
+        + req.getRequestURI() + (query != null ?query:"");
   }
 
   /**

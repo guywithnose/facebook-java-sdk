@@ -197,81 +197,40 @@ public class facebookTest
     // be 32 characters long.
     assertEquals(query_map.get("state").length(), 32);
   }
-      
-      /**
-       * Tests the getLoginURLWithExtraParams method.
-       */
-      @Test
-      public void testGetLoginURLWithExtraParams() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new Facebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        // fake the HPHP $_SERVER globals
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php";
-        $extra_params = array("scope" => "email, sms",
-                              "nonsense" => "nonsense");
-        $login_url = parse_url($facebook->getLoginUrl($extra_params));
-        assertEquals($login_url["scheme"], "https");
-        assertEquals($login_url["host"], "www.facebook.com");
-        assertEquals($login_url["path"], "/dialog/oauth");
-        $expected_login_params =
-          array_merge(
-            array("client_id" => self::APP_ID,
-                  "redirect_uri" => "http://www.test.com/unit-tests.php"),
-            $extra_params);
-        $query_map = array();
-        parse_str($login_url["query"], $query_map);
-        assertIsSubset($expected_login_params, $query_map);
-        // we don"t know what the state is, but we know it"s an md5 and should
-        // be 32 characters long.
-        assertEquals(strlen($query_map["state"]), $num_characters = 32);
-        */
-      }
-      
-      /**
-       * Tests the getLoginURLWithScopeParamsAsArray method.
-       */
-      @Test
-      public void testGetLoginURLWithScopeParamsAsArray() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new Facebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
+  /**
+   * Tests the getLoginURL method using extra params.
+   */
+  @Test
+  public void testGetLoginURL_ExtraParams()
+  {
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    req.setRequestString("http://www.test.com/unit-tests.php");
+    Facebook facebook = new Facebook(config, req);
 
-        // fake the HPHP $_SERVER globals
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php";
-        $scope_params_as_array = array("email","sms","read_stream");
-        $extra_params = array("scope" => $scope_params_as_array,
-                              "nonsense" => "nonsense");
-        $login_url = parse_url($facebook->getLoginUrl($extra_params));
-        assertEquals($login_url["scheme"], "https");
-        assertEquals($login_url["host"], "www.facebook.com");
-        assertEquals($login_url["path"], "/dialog/oauth");
-        // expect api to flatten array params to comma separated list
-        // should do the same here before asserting to make sure API is behaving
-        // correctly;
-        $extra_params["scope"] = implode(",", $scope_params_as_array);
-        $expected_login_params =
-          array_merge(
-            array("client_id" => self::APP_ID,
-                  "redirect_uri" => "http://www.test.com/unit-tests.php"),
-            $extra_params);
-        $query_map = array();
-        parse_str($login_url["query"], $query_map);
-        assertIsSubset($expected_login_params, $query_map);
-        // we don"t know what the state is, but we know it"s an md5 and should
-        // be 32 characters long.
-        assertEquals(strlen($query_map["state"]), $num_characters = 32);
-        */
+    HashMap<String, String> extra_params = new HashMap<String, String>()
+    {
+      {
+        put("scope", "email, sms");
+        put("nonsense", "nonsense");
       }
+    };
+    HashMap<String, String> login_url = parse_url(facebook
+        .getLoginUrl(extra_params));
+    assertEquals(login_url.get("scheme"), "https");
+    assertEquals(login_url.get("host"), "www.facebook.com");
+    assertEquals(login_url.get("path"), "/dialog/oauth");
+    HashMap<String, String> expected_login_params = extra_params;
+    expected_login_params.put("client_id", APP_ID);
+    expected_login_params.put("redirect_uri",
+        "http://www.test.com/unit-tests.php");
+    HashMap<String, String> query_map = parse_str(login_url.get("query"));
+    assertIsSubset(expected_login_params, query_map);
+    // we don"t know what the state is, but we know it"s an md5 and should
+    // be 32 characters long.
+    assertEquals(query_map.get("state").length(), 32);
+  }
       
       /**
        * Tests the getCodeWithValidCSRFState method.
@@ -1191,13 +1150,11 @@ public class facebookTest
        *          the msg
        */
       protected void assertIsSubset(HashMap<String, String> correct, HashMap<String, String> actual, String msg) {
-        /* TODO Translate
-        foreach ($correct as $key => $value) {
-          $actual_value = $actual[$key];
-          $newMsg = (strlen($msg) ? ($msg." ") : "")."Key: ".$key;
-          assertEquals($value, $actual_value, $newMsg);
+        for(String key : correct.keySet()) {
+          String actual_value = actual.get(key);
+          String newMsg = msg.length() != 0 ? msg + " " : "" + "Key: " + key;
+          assertEquals(newMsg, correct.get(key), actual_value);
         }
-        */
       }
       
       protected HashMap<String,String> parse_url(String url)
@@ -1214,7 +1171,7 @@ public class facebookTest
         int path = url.indexOf("/", port);
         urlParts.put("path", url.substring(path, url.indexOf("?", path)));
         if(url.indexOf("?") != -1)
-          urlParts.put("query", url.substring(url.indexOf("?")));
+          urlParts.put("query", url.substring(url.indexOf("?")+1));
         return urlParts;
       }
       
