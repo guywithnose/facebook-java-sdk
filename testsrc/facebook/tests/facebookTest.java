@@ -269,25 +269,24 @@ public class facebookTest
     assertEquals("CSRF state token does not match one provided.",
         facebook.getLastError());
   }
-      
-      /**
-       * Tests the getCodeWithMissingCSRFState method.
-       */
-      @Test
-      public void testGetCodeWithMissingCSRFState() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBCode(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $code = $_REQUEST["code"] = generateMD5HashOfRandomValue();
-        // intentionally don"t set CSRF token at all
-        assertFalse($facebook->publicGetCode(),
-                           "Expect getCode to fail, CSRF state not sent back.");
-*/
-      }
+  /**
+   * Tests the getCode method using missing csrf state.
+   */
+  @Test
+  public void testGetCode_MissingCSRFState()
+  {
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBCode facebook = new FBCode(config, req);
+
+    facebook.setCSRFStateToken();
+    req.setParameter("code", TransientFacebook.md5());
+    assertNull("Expect getCode to fail, CSRF state not sent back.",
+        facebook.publicGetCode());
+    assertEquals("CSRF state token does not match one provided.",
+        facebook.getLastError());
+  }
       
       /**
        * Tests the getUserFromSignedRequest method.
