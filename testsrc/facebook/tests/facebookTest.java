@@ -76,23 +76,17 @@ public class facebookTest
     assertTrue("Expect file upload support to be on.",
         facebook.getFileUploadSupport());
   }
-      
-      /**
-       * Tests the setAppId method.
-       */
-      @Test
-      public void testSetAppId() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $facebook->setAppId("dummy");
-        assertEquals($facebook->getAppId(), "dummy",
-                            "Expect the App ID to be dummy.");
-                            */
-      }
+
+  /**
+   * Tests the setAppId method.
+   */
+  @Test
+  public void testSetAppId()
+  {
+    BaseFacebook facebook = new TransientFacebook(config);
+    facebook.setAppId("dummy");
+    assertEquals("Expect the App ID to be dummy.", facebook.getAppId(), "dummy");
+  }
       
       /**
        * Tests the setAPISecret method.
