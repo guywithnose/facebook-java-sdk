@@ -4,7 +4,12 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
+import facebook.BaseFacebook;
+import facebook.tests.helpers.TransientFacebook;
 
 /**
  * The Class facebookTest.
@@ -12,48 +17,44 @@ import org.junit.Test;
 @SuppressWarnings("unused")
 public class facebookTest
 {
-  
-      /** The AP p_ id. */
-      private final String APP_ID = "117743971608120";
-      
-      /** The SECRET. */
-      private final String SECRET = "943716006e74d9b9283d4d5d8ab93204";
 
-      /** The MIGRATE d_ ap p_ id. */
-      private final String MIGRATED_APP_ID = "174236045938435";
-      
-      /** The MIGRATE d_ secret. */
-      private final String MIGRATED_SECRET = "0073dce2d95c4a5c2922d1827ea0cca6";
+  /** The AP p_ id. */
+  private final String APP_ID = "117743971608120";
 
-      /** The Constant kExpiredAccessToken. */
-      private static final String kExpiredAccessToken = "206492729383450|2.N4RKywNPuHAey7CK56_wmg__.3600.1304560800.1-214707|6Q14AfpYi_XJB26aRQumouzJiGA";
-      
-      /** The Constant kValidSignedRequest. */
-      private static final String kValidSignedRequest = "1sxR88U4SW9m6QnSxwCEw_CObqsllXhnpP5j2pxD97c.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEyODEwNTI4MDAsIm9hdXRoX3Rva2VuIjoiMTE3NzQzOTcxNjA4MTIwfDIuVlNUUWpub3hYVVNYd1RzcDB1U2g5d19fLjg2NDAwLjEyODEwNTI4MDAtMTY3Nzg0NjM4NXx4NURORHBtcy1nMUM0dUJHQVYzSVdRX2pYV0kuIiwidXNlcl9pZCI6IjE2Nzc4NDYzODUifQ";
-      
-      /** The Constant kNonTosedSignedRequest. */
-      private static final String kNonTosedSignedRequest = "c0Ih6vYvauDwncv0n0pndr0hP0mvZaJPQDPt6Z43O0k.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiJ9";
-      
-      /** The Constant kSignedRequestWithBogusSignature. */
-      private static final String kSignedRequestWithBogusSignature = "1sxR32U4SW9m6QnSxwCEw_CObqsllXhnpP5j2pxD97c.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEyODEwNTI4MDAsIm9hdXRoX3Rva2VuIjoiMTE3NzQzOTcxNjA4MTIwfDIuVlNUUWpub3hYVVNYd1RzcDB1U2g5d19fLjg2NDAwLjEyODEwNTI4MDAtMTY3Nzg0NjM4NXx4NURORHBtcy1nMUM0dUJHQVYzSVdRX2pYV0kuIiwidXNlcl9pZCI6IjE2Nzc4NDYzODUifQ";
+  /** The SECRET. */
+  private final String SECRET = "943716006e74d9b9283d4d5d8ab93204";
 
-      /**
-       * Tests the constructor method.
-       */
-      @Test
-      public void testConstructor() {
-        fail("Not implemented.");
-        /* TODO Translate
-        BaseFacebook facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $this->assertEquals($facebook->getAppId(), self::APP_ID,
-                            "Expect the App ID to be set.");
-        $this->assertEquals($facebook->getAppSecret(), self::SECRET,
-                            "Expect the API secret to be set.");
-                            */
-      }
+  private JSONObject config;
+
+  /** The MIGRATE d_ ap p_ id. */
+  private final String MIGRATED_APP_ID = "174236045938435";
+
+  /** The MIGRATE d_ secret. */
+  private final String MIGRATED_SECRET = "0073dce2d95c4a5c2922d1827ea0cca6";
+
+  /** The Constant kExpiredAccessToken. */
+  private static final String kExpiredAccessToken = "206492729383450|2.N4RKywNPuHAey7CK56_wmg__.3600.1304560800.1-214707|6Q14AfpYi_XJB26aRQumouzJiGA";
+
+  /** The Constant kValidSignedRequest. */
+  private static final String kValidSignedRequest = "1sxR88U4SW9m6QnSxwCEw_CObqsllXhnpP5j2pxD97c.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEyODEwNTI4MDAsIm9hdXRoX3Rva2VuIjoiMTE3NzQzOTcxNjA4MTIwfDIuVlNUUWpub3hYVVNYd1RzcDB1U2g5d19fLjg2NDAwLjEyODEwNTI4MDAtMTY3Nzg0NjM4NXx4NURORHBtcy1nMUM0dUJHQVYzSVdRX2pYV0kuIiwidXNlcl9pZCI6IjE2Nzc4NDYzODUifQ";
+
+  /** The Constant kNonTosedSignedRequest. */
+  private static final String kNonTosedSignedRequest = "c0Ih6vYvauDwncv0n0pndr0hP0mvZaJPQDPt6Z43O0k.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiJ9";
+
+  /** The Constant kSignedRequestWithBogusSignature. */
+  private static final String kSignedRequestWithBogusSignature = "1sxR32U4SW9m6QnSxwCEw_CObqsllXhnpP5j2pxD97c.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEyODEwNTI4MDAsIm9hdXRoX3Rva2VuIjoiMTE3NzQzOTcxNjA4MTIwfDIuVlNUUWpub3hYVVNYd1RzcDB1U2g5d19fLjg2NDAwLjEyODEwNTI4MDAtMTY3Nzg0NjM4NXx4NURORHBtcy1nMUM0dUJHQVYzSVdRX2pYV0kuIiwidXNlcl9pZCI6IjE2Nzc4NDYzODUifQ";
+
+  /**
+   * Tests the constructor method.
+   */
+  @Test
+  public void testConstructor()
+  {
+    BaseFacebook facebook = new TransientFacebook(config);
+    assertEquals("Expect the App ID to be set.", facebook.getAppId(), APP_ID);
+    assertEquals("Expect the API secret to be set.", facebook.getAppSecret(),
+        SECRET);
+  }
       
       /**
        * Tests the constructorWithFileUpload method.
@@ -1179,10 +1180,15 @@ public class facebookTest
       /**
        * Sets the up.
        */
-      protected void setUp() {
-        /* TODO Translate
-        parent::setUp();
-        */
+      @Before
+      public void setUp() {
+        try
+        {
+          config = new JSONObject("{\"appId\": \""+APP_ID+"\",\"secret\": \""+SECRET+"\"}");
+        } catch (JSONException e)
+        {
+          e.printStackTrace();
+        }
       }
 
       /**
