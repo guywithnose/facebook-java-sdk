@@ -99,24 +99,19 @@ public class facebookTest
     assertEquals("Expect the API secret to be dummy.", facebook.getAppSecret(),
         "dummy");
   }
-      
-      /**
-       * Tests the setAccessToken method.
-       */
-      @Test
-      public void testSetAccessToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $facebook->setAccessToken("saltydog");
-        assertEquals($facebook->getAccessToken(), "saltydog",
-                            "Expect installed access token to remain \"saltydog\"");
-                            */
-      }
+  /**
+   * Tests the setAccessToken method.
+   */
+  @Test
+  public void testSetAccessToken()
+  {
+    BaseFacebook facebook = new TransientFacebook(config);
+    facebook.setAccessToken("saltydog");
+    assertEquals("Expect installed access token to remain \"saltydog\"",
+        facebook.getAccessToken(), "saltydog");
+
+  }
       
       /**
        * Tests the setFileUploadSupport method.
