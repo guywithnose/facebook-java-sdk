@@ -1,7 +1,10 @@
 package facebook;
 
+import java.util.HashMap;
+import javax.print.attribute.HashAttributeSet;
 import javax.servlet.http.HttpServletRequest;
-
+import javax.servlet.http.HttpSession;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -10,6 +13,8 @@ import org.json.JSONObject;
 @SuppressWarnings("unused")
 public class Facebook extends BaseFacebook
 {
+  
+  HttpSession session;
   
   /**
    * Instantiates a new facebook.
@@ -23,6 +28,13 @@ public class Facebook extends BaseFacebook
   {
     super(config, Req);
   }
+  
+  @Override
+  protected void initialize(JSONObject config, HttpServletRequest Req)
+  {
+    session = Req.getSession(true);
+    super.initialize(config, Req);
+  }
 
   /* (non-Javadoc)
    * @see facebook.BaseFacebook#setPersistentData(java.lang.String, java.lang.String)
@@ -30,8 +42,7 @@ public class Facebook extends BaseFacebook
   @Override
   protected void setPersistentData(String key, String value)
   {
-    // TODO Auto-generated method stub
-
+    session.setAttribute(key, value);
   }
 
   /* (non-Javadoc)
@@ -40,8 +51,9 @@ public class Facebook extends BaseFacebook
   @Override
   protected String getPersistentData(String key, String Default)
   {
-    // TODO Auto-generated method stub
-    return null;
+    if(session.getAttribute(key) != null)
+      return (String)session.getAttribute(key);
+    return Default;
   }
 
   /* (non-Javadoc)
@@ -50,7 +62,7 @@ public class Facebook extends BaseFacebook
   @Override
   protected void clearPersistentData(String key)
   {
-    // TODO Auto-generated method stub
+    session.removeAttribute(key);
   }
 
   /* (non-Javadoc)
@@ -59,8 +71,8 @@ public class Facebook extends BaseFacebook
   @Override
   protected void clearAllPersistentData()
   {
-    // TODO Auto-generated method stub
-
+    session.invalidate();
+    session = req.getSession(true);
   }
 
 }

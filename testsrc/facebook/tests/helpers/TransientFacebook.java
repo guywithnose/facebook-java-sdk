@@ -88,5 +88,10 @@ public class TransientFacebook extends BaseFacebook
   {
     //Do Nothing
   }
+  
+  public static String md5()
+  {
+    return BaseFacebook.md5();
+  }  
 
 }

@@ -97,6 +97,8 @@ public class HttpServletRequestMock implements HttpServletRequest
 
   private String method;
 
+  private HttpSession session;
+
   /**
    * Instantiates a new http servlet request mock.
    * 
@@ -153,6 +155,19 @@ public class HttpServletRequestMock implements HttpServletRequest
     if (parameters.containsKey(arg0))
       return parameters.get(arg0);
     return null;
+  }
+  
+  /**
+   * Sets the parameter.
+   * 
+   * @param name
+   *          the name
+   * @param value
+   *          the value
+   */
+  public void setParameter(String name, String value)
+  {
+    parameters.put(name, value);
   }
 
   /*
@@ -641,7 +656,7 @@ public class HttpServletRequestMock implements HttpServletRequest
   @Override
   public HttpSession getSession()
   {
-    return null;
+    return getSession(false);
   }
 
   /*
@@ -652,7 +667,14 @@ public class HttpServletRequestMock implements HttpServletRequest
   @Override
   public HttpSession getSession(boolean arg0)
   {
-    return null;
+    if(session == null)
+    {
+      if(arg0 == true)
+        session = new HttpSessionMock();
+      else
+        return null;
+    }
+    return session;
   }
 
   /*

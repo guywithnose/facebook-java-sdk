@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import facebook.BaseFacebook;
 import facebook.Facebook;
+import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.TransientFacebook;
@@ -231,27 +232,24 @@ public class facebookTest
     // be 32 characters long.
     assertEquals(query_map.get("state").length(), 32);
   }
-      
-      /**
-       * Tests the getCodeWithValidCSRFState method.
-       */
-      @Test
-      public void testGetCodeWithValidCSRFState() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBCode(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $facebook->setCSRFStateToken();
-        $code = $_REQUEST["code"] = generateMD5HashOfRandomValue();
-        $_REQUEST["state"] = $facebook->getCSRFStateToken();
-        assertEquals($code,
-                            $facebook->publicGetCode(),
-                            "Expect code to be pulled from $_REQUEST[\"code\"]");
-                            */
-      }
+  /**
+   * Tests the getCodeWithValidCSRFState method.
+   */
+  @Test
+  public void testGetCodeWithValidCSRFState()
+  {
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBCode facebook = new FBCode(config, req);
+
+    facebook.setCSRFStateToken();
+    String code = TransientFacebook.md5();
+    req.setParameter("code", code);
+    req.setParameter("state", facebook.getCSRFStateToken());
+    assertEquals("Expect code to be pulled from $_REQUEST[\"code\"]", code,
+        facebook.publicGetCode());
+  }
       
       /**
        * Tests the getCodeWithInvalidCSRFState method.
@@ -1073,15 +1071,6 @@ public class facebookTest
         assertEmpty($_SESSION,
                            "Session superglobal incorrectly populated by getUser.");
                            */
-      }
-
-      /**
-       * Generate m d5 hash of random value.
-       */
-      protected void generateMD5HashOfRandomValue() {
-        /* TODO Translate
-        return md5(uniqid(mt_rand(), true));
-        */
       }
 
       /**

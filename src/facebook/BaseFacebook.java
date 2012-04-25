@@ -116,6 +116,19 @@ abstract public class BaseFacebook
    */
   public BaseFacebook(JSONObject config, HttpServletRequest Req)
   {
+    initialize(config, Req);
+  }
+  
+  /**
+   * Initialize.
+   * 
+   * @param config
+   *          the config
+   * @param Req
+   *          the req
+   */
+  protected void initialize(JSONObject config, HttpServletRequest Req)
+  {
     req = Req;
     try
     {
@@ -524,17 +537,17 @@ abstract public class BaseFacebook
    */
   protected String getCode()
   {
-    /*
-     * TODO Translate if (isset($_REQUEST['code'])) { if (state !== null &&
-     * isset($_REQUEST['state']) && state === $_REQUEST['state']) {
-     * 
-     * // CSRF state has done its job, so clear it state = null;
-     * clearPersistentData('state'); return $_REQUEST['code']; } else {
-     * self::errorLog('CSRF state token does not match one provided.'); return
-     * false; } }
-     * 
-     * return false;
-     */
+    if (req.getParameter("code") != null)
+    {
+      if (state != null && req.getParameter("state") == state)
+      {
+        state = null;
+        clearPersistentData("state");
+        return req.getParameter("code");
+      }
+      errorLog("CSRF state token does not match one provided.");
+      return null;
+    }
     return null;
   }
 
@@ -584,7 +597,7 @@ abstract public class BaseFacebook
    * 
    * @return the string
    */
-  protected String md5()
+  protected static String md5()
   {
     try
     {
@@ -1246,7 +1259,7 @@ abstract public class BaseFacebook
    */
   protected String getPersistentData(String key)
   {
-    return getPersistentData(key, "false");
+    return getPersistentData(key, null);
   }
 
   /**
