@@ -112,32 +112,21 @@ public class facebookTest
         facebook.getAccessToken(), "saltydog");
 
   }
-      
-      /**
-       * Tests the setFileUploadSupport method.
-       */
-      @Test
-      public void testSetFileUploadSupport() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        assertFalse($facebook->getFileUploadSupport(),
-                           "Expect file upload support to be off.");
-        // alias for getFileUploadSupport (depricated), testing until removed
-        assertFalse($facebook->useFileUploadSupport(),
-                           "Expect file upload support to be off.");
-        $facebook->setFileUploadSupport(true);
-        assertTrue($facebook->getFileUploadSupport(),
-                          "Expect file upload support to be on.");
-        // alias for getFileUploadSupport (depricated), testing until removed
-        assertTrue($facebook->useFileUploadSupport(),
-                          "Expect file upload support to be on.");
-                          */
-      }
-      
+
+  /**
+   * Tests the setFileUploadSupport method.
+   */
+  @Test
+  public void testSetFileUploadSupport()
+  {
+    BaseFacebook facebook = new TransientFacebook(config);
+    assertFalse("Expect file upload support to be off.",
+        facebook.getFileUploadSupport());
+    facebook.setFileUploadSupport(true);
+    assertTrue("Expect file upload support to be on.",
+        facebook.getFileUploadSupport());
+  }
+
       /**
        * Tests the getCurrentURL method.
        */
