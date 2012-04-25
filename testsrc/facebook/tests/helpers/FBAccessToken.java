@@ -4,6 +4,8 @@
  */
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -11,14 +13,18 @@ import org.json.JSONObject;
  */
 public class FBAccessToken extends TransientFacebook {
   
+
   /**
    * Instantiates a new fB access token.
-   *
-   * @param config the config
+   * 
+   * @param config
+   *          the config
+   * @param Req
+   *          the req
    */
-  public FBAccessToken(JSONObject config)
+  public FBAccessToken(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /**

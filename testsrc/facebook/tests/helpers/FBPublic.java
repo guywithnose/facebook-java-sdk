@@ -4,6 +4,8 @@
  */
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -11,16 +13,20 @@ import org.json.JSONObject;
  */
 public class FBPublic extends TransientFacebook {
   
+  
   /**
    * Instantiates a new fB public.
-   *
-   * @param config the config
+   * 
+   * @param config
+   *          the config
+   * @param Req
+   *          the req
    */
-  public FBPublic(JSONObject config)
+  public FBPublic(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
-  
+
   /**
    * Public base64 url decode.
    *

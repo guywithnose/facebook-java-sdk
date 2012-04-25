@@ -3,6 +3,8 @@
  */
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -17,10 +19,12 @@ public class FBRecordURL extends TransientFacebook
    * 
    * @param config
    *          the config
+   * @param Req
+   *          the req
    */
-  public FBRecordURL(JSONObject config)
+  public FBRecordURL(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /** The url. */

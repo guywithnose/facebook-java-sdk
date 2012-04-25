@@ -4,6 +4,9 @@
  */
 package facebook;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import sun.security.provider.MD5;
 
 import com.sun.xml.internal.ws.util.StringUtils;
 
@@ -110,6 +115,8 @@ abstract public class BaseFacebook
    */
   protected boolean fileUploadSupport = false;
 
+  protected HttpServletRequest req;
+  
   /**
    * Initialize a Facebook Application.
    * 
@@ -119,9 +126,12 @@ abstract public class BaseFacebook
    * 
    * @param config
    *          the config
+   * @param Req
+   *          the req
    */
-  public BaseFacebook(JSONObject config)
+  public BaseFacebook(JSONObject config, HttpServletRequest Req)
   {
+    req = Req;
     try
     {
       setAppId(config.getString("appId"));
@@ -387,7 +397,7 @@ abstract public class BaseFacebook
    */
   public String getLoginUrl()
   {
-    return getLoginStatusUrl(new HashMap<String, String>());
+    return getLoginUrl(new HashMap<String, String>());
   }
 
   /**
@@ -404,19 +414,14 @@ abstract public class BaseFacebook
    */
   public String getLoginUrl(HashMap<String, String> params)
   {
-    /*
-     * TODO Translate establishCSRFTokenState(); $currentUrl = getCurrentUrl();
-     * 
-     * // if 'scope' is passed as an array, convert to comma separated list
-     * $scopeParams = isset($params['scope']) ? $params['scope'] : null; if
-     * ($scopeParams && is_array($scopeParams)) { $params['scope'] =
-     * implode(',', $scopeParams); }
-     * 
-     * return getUrl( 'www', 'dialog/oauth', array_merge(array( 'client_id' =>
-     * getAppId(), 'redirect_uri' => $currentUrl, // possibly overwritten
-     * 'state' => state), $params));
-     */
-    return null;
+    establishCSRFTokenState();
+    String currentUrl = getCurrentUrl();
+
+    params.put("client_id", getAppId());
+    params.put("redirect_uri", currentUrl);
+    params.put("state", state);
+
+    return getUrl("www", "dialog/oauth", params);
   }
 
   /**
@@ -477,13 +482,12 @@ abstract public class BaseFacebook
    */
   public String getLoginStatusUrl(HashMap<String, String> params)
   {
-    /*
-     * TODO Translate return getUrl( 'www', 'extern/login_status.php',
-     * array_merge(array( 'api_key' => getAppId(), 'no_session' =>
-     * getCurrentUrl(), 'no_user' => getCurrentUrl(), 'ok_session' =>
-     * getCurrentUrl(), 'session_version' => 3, ), $params) );
-     */
-    return null;
+    params.put("api_key", getAppId());
+    params.put("no_user", getCurrentUrl());
+    params.put("no_session", getCurrentUrl());
+    params.put("ok_session", getCurrentUrl());
+    params.put("session_version", "3");
+    return getUrl( "www", "extern/login_status.php", params);
   }
 
   /**
@@ -583,10 +587,31 @@ abstract public class BaseFacebook
    */
   protected void establishCSRFTokenState()
   {
-    /*
-     * TODO Translate if (state === null) { state = md5(uniqid(mt_rand(),
-     * true)); setPersistentData("state", state); }
-     */
+    if (state == null)
+    {
+      state = md5();
+      setPersistentData("state", state);
+    }
+  }
+
+  /**
+   * Md5.
+   * 
+   * @return the string
+   */
+  protected String md5()
+  {
+    try
+    {
+      String s = String.valueOf(Math.random());
+      MessageDigest m;
+      m = MessageDigest.getInstance("MD5");
+      m.update(s.getBytes(), 0, s.length());
+      return new BigInteger(1, m.digest()).toString(16);
+    } catch (Exception e)
+    {
+      return "";
+    }
   }
 
   /**
@@ -1003,14 +1028,35 @@ abstract public class BaseFacebook
   protected String getUrl(String name, String path,
       HashMap<String, String> params)
   {
-    /*
-     * TODO Translate $url = self::$DOMAIN_MAP[$name]; if ($path) { if ($path[0]
-     * === '/') { $path = substr($path, 1); } $url .= $path; } if ($params) {
-     * $url .= '?' . http_build_query($params, null, '&'); }
-     * 
-     * return $url;
-     */
-    return null;
+    String url = DOMAIN_MAP.get(name);
+    if (path.length() > 0)
+    {
+      if (path.charAt(0) == '/')
+      {
+        path = path.substring(1);
+      }
+      url += path;
+    }
+    if (params.size() > 0)
+    {
+      url += '?' + http_build_query(params);
+    }
+
+    return url;
+  }
+
+  private String http_build_query(HashMap<String, String> params)
+  {
+    StringBuilder query = new StringBuilder();
+    for (String key : params.keySet())
+    {
+      query.append(key);
+      query.append("=");
+      query.append(params.get(key));
+      query.append("&");
+    }
+    query.deleteCharAt(query.length() - 1);
+    return query.toString();
   }
 
   /**
@@ -1019,7 +1065,7 @@ abstract public class BaseFacebook
    * 
    * @return string The current URL
    */
-  protected String getCurrentUrl(HttpServletRequest req)
+  protected String getCurrentUrl()
   {
     String currentUrl = req.getRequestURL().toString();
     String query = req.getQueryString();

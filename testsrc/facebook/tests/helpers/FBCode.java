@@ -4,6 +4,8 @@
  */
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 import facebook.Facebook;
 
@@ -12,14 +14,18 @@ import facebook.Facebook;
  */
 public class FBCode extends Facebook {
   
+
   /**
    * Instantiates a new fB code.
-   *
-   * @param config the config
+   * 
+   * @param config
+   *          the config
+   * @param Req
+   *          the req
    */
-  public FBCode(JSONObject config)
+  public FBCode(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /**

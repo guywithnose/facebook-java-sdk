@@ -296,7 +296,10 @@ public class HttpServletRequestMock implements HttpServletRequest
   @Override
   public StringBuffer getRequestURL()
   {
-    return new StringBuffer(url.substring(0, url.indexOf("?")));
+    int questionIndex = url.indexOf("?");
+    if(questionIndex != -1)
+      return new StringBuffer(url.substring(0, url.indexOf("?")));
+    return new StringBuffer(url);
   }
 
   /**

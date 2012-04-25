@@ -1,6 +1,6 @@
 /*
- * File:         FBGetCurrentURLFacebook.java
- * Author:       Robert Bittle <guywithnose@gmail.com>
+ * File: FBGetCurrentURLFacebook.java Author: Robert Bittle
+ * <guywithnose@gmail.com>
  */
 package facebook.tests.helpers;
 
@@ -11,26 +11,30 @@ import org.json.JSONObject;
 /**
  * The Class FBGetCurrentURLFacebook.
  */
-public class FBGetCurrentURLFacebook extends TransientFacebook {
-  
+public class FBGetCurrentURLFacebook extends TransientFacebook
+{
+
   /**
    * Instantiates a new fB get current url facebook.
-   *
-   * @param config the config
+   * 
+   * @param config
+   *          the config
+   * @param Req
+   *          the req
    */
-  public FBGetCurrentURLFacebook(JSONObject config)
+  public FBGetCurrentURLFacebook(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /**
    * Public get current url.
-   *
-   * @param req the req
+   * 
    * @return the string
    */
-  public String publicGetCurrentUrl(HttpServletRequest req) {
-    return getCurrentUrl(req);
+  public String publicGetCurrentUrl()
+  {
+    return getCurrentUrl();
   }
-  
+
 }

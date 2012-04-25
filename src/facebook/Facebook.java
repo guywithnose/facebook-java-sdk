@@ -1,5 +1,7 @@
 package facebook;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -8,16 +10,18 @@ import org.json.JSONObject;
 @SuppressWarnings("unused")
 public class Facebook extends BaseFacebook
 {
-
+  
   /**
    * Instantiates a new facebook.
    * 
    * @param config
    *          the config
+   * @param Req
+   *          the req
    */
-  public Facebook(JSONObject config)
+  public Facebook(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /* (non-Javadoc)

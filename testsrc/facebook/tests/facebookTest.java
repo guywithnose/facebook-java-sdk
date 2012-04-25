@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import facebook.BaseFacebook;
+import facebook.Facebook;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.TransientFacebook;
@@ -54,7 +55,7 @@ public class facebookTest
   @Test
   public void testConstructor()
   {
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     assertEquals("Expect the App ID to be set.", facebook.getAppId(), APP_ID);
     assertEquals("Expect the API secret to be set.", facebook.getAppSecret(),
         SECRET);
@@ -73,7 +74,7 @@ public class facebookTest
     {
       e.printStackTrace();
     }
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     assertEquals("Expect the App ID to be set.", facebook.getAppId(), APP_ID);
     assertEquals("Expect the API secret to be set.", facebook.getAppSecret(),
         SECRET);
@@ -87,7 +88,7 @@ public class facebookTest
   @Test
   public void testSetAppId()
   {
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     facebook.setAppId("dummy");
     assertEquals("Expect the App ID to be dummy.", facebook.getAppId(), "dummy");
   }
@@ -98,7 +99,7 @@ public class facebookTest
   @Test
   public void testSetAPPSecret()
   {
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     facebook.setAppSecret("dummy");
     assertEquals("Expect the API secret to be dummy.", facebook.getAppSecret(),
         "dummy");
@@ -110,7 +111,7 @@ public class facebookTest
   @Test
   public void testSetAccessToken()
   {
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     facebook.setAccessToken("saltydog");
     assertEquals("Expect installed access token to remain \"saltydog\"",
         facebook.getAccessToken(), "saltydog");
@@ -123,7 +124,7 @@ public class facebookTest
   @Test
   public void testSetFileUploadSupport()
   {
-    BaseFacebook facebook = new TransientFacebook(config);
+    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
     assertFalse("Expect file upload support to be off.",
         facebook.getFileUploadSupport());
     facebook.setFileUploadSupport(true);
@@ -137,12 +138,12 @@ public class facebookTest
   @Test
   public void testGetCurrentURL()
   {
-    FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config);
-
     // fake the request object
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php?one=one&two=two&three=three");
-    String current_url = facebook.publicGetCurrentUrl(req);
+    FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config, req);
+
+    String current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
         "http://www.test.com/unit-tests.php?one=one&two=two&three=three",
         current_url);
@@ -152,51 +153,50 @@ public class facebookTest
     // first test when equal signs are present
 
     req.setRequestString("http://www.test.com/unit-tests.php?one=&two=&three=");
+    facebook = new FBGetCurrentURLFacebook(config, req);
 
-    current_url = facebook.publicGetCurrentUrl(req);
+    current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
         "http://www.test.com/unit-tests.php?one=&two=&three=", current_url);
 
     // then test when equal signs are not present
 
     req.setRequestString("http://www.test.com/unit-tests.php?one&two&three");
-    
-    current_url = facebook.publicGetCurrentUrl(req);
+    facebook = new FBGetCurrentURLFacebook(config, req);
+    current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
         "http://www.test.com/unit-tests.php?one&two&three", current_url);
   }
-      
-      /**
-       * Tests the getLoginURL method.
-       */
-      @Test
-      public void testGetLoginURL() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new Facebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        // fake the HPHP $_SERVER globals
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php";
-        $login_url = parse_url($facebook->getLoginUrl());
-        assertEquals($login_url["scheme"], "https");
-        assertEquals($login_url["host"], "www.facebook.com");
-        assertEquals($login_url["path"], "/dialog/oauth");
-        $expected_login_params =
-          array("client_id" => self::APP_ID,
-                "redirect_uri" => "http://www.test.com/unit-tests.php");
+  /**
+   * Tests the getLoginURL method.
+   */
+  @Test
+  public void testGetLoginURL()
+  {
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    req.setRequestString("http://www.test.com/unit-tests.php");
+    Facebook facebook = new Facebook(config, req);
 
-        $query_map = array();
-        parse_str($login_url["query"], $query_map);
-        assertIsSubset($expected_login_params, $query_map);
-        // we don"t know what the state is, but we know it"s an md5 and should
-        // be 32 characters long.
-        assertEquals(strlen($query_map["state"]), $num_characters = 32);
-        */
+    HashMap<String, String> login_url = parse_url(facebook.getLoginUrl());
+    assertEquals("https", login_url.get("scheme"));
+    assertEquals("www.facebook.com", login_url.get("host"));
+    assertEquals("/dialog/oauth", login_url.get("path"));
+    HashMap<String, String> expected_login_params = new HashMap<String, String>()
+    {
+      {
+        put("client_id", APP_ID);
+        put("redirect_uri", "http://www.test.com/unit-tests.php");
       }
+    };
+
+    HashMap<String, String> query_map = parse_str(login_url.get("query"));
+    assertIsSubset(expected_login_params, query_map);
+    // we don"t know what the state is, but we know it"s an md5 and should
+    // be 32 characters long.
+    assertEquals(query_map.get("state").length(), 32);
+  }
       
       /**
        * Tests the getLoginURLWithExtraParams method.
@@ -1176,7 +1176,7 @@ public class facebookTest
        * @param actual
        *          the actual
        */
-      protected void assertIsSubset(HashMap<String, String> correct, String actual) {
+      protected void assertIsSubset(HashMap<String, String> correct, HashMap<String, String> actual) {
         assertIsSubset(correct, actual, "");
       }
       
@@ -1190,7 +1190,7 @@ public class facebookTest
        * @param msg
        *          the msg
        */
-      protected void assertIsSubset(HashMap<String, String> correct, String actual, String msg) {
+      protected void assertIsSubset(HashMap<String, String> correct, HashMap<String, String> actual, String msg) {
         /* TODO Translate
         foreach ($correct as $key => $value) {
           $actual_value = $actual[$key];
@@ -1199,4 +1199,35 @@ public class facebookTest
         }
         */
       }
+      
+      protected HashMap<String,String> parse_url(String url)
+      {
+        HashMap<String, String> urlParts = new HashMap<String, String>();
+        int scheme = url.indexOf("://") + 3;
+        int port = url.indexOf(":", scheme);
+        urlParts.put("scheme", url.substring(0, scheme-3));
+        if(port == -1 || port > url.indexOf("/", scheme))
+          port = url.indexOf("/", scheme);
+        else
+          urlParts.put("port", url.substring(port, url.indexOf("/", port)));
+        urlParts.put("host", url.substring(scheme, port));
+        int path = url.indexOf("/", port);
+        urlParts.put("path", url.substring(path, url.indexOf("?", path)));
+        if(url.indexOf("?") != -1)
+          urlParts.put("query", url.substring(url.indexOf("?")));
+        return urlParts;
+      }
+      
+      protected HashMap<String, String> parse_str(String query)
+      {
+        HashMap<String, String> params = new HashMap<String, String>();
+        for(String param : query.split("&"))
+        {
+          String[] keyVal = param.split("=");
+          String value = keyVal.length > 1 ? keyVal[1] : "";
+          params.put(keyVal[0], value);
+        }
+        return params;
+      }
+      
 }

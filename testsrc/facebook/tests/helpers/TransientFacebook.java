@@ -1,5 +1,7 @@
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 import facebook.BaseFacebook;
@@ -10,16 +12,18 @@ import facebook.BaseFacebook;
 @SuppressWarnings("unused")
 public class TransientFacebook extends BaseFacebook
 {
-  
+
   /**
    * Instantiates a new transient facebook.
    * 
    * @param config
    *          the config
+   * @param Req
+   *          the req
    */
-  public TransientFacebook(JSONObject config)
+  public TransientFacebook(JSONObject config, HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /**

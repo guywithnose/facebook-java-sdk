@@ -1,5 +1,7 @@
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -7,16 +9,19 @@ import org.json.JSONObject;
  */
 public class FBGetSignedRequestCookieFacebook extends TransientFacebook
 {
-  
+
   /**
    * Instantiates a new fB get signed request cookie facebook.
    * 
    * @param config
    *          the config
+   * @param Req
+   *          the req
    */
-  public FBGetSignedRequestCookieFacebook(JSONObject config)
+  public FBGetSignedRequestCookieFacebook(JSONObject config,
+      HttpServletRequest Req)
   {
-    super(config);
+    super(config, Req);
   }
 
   /**
