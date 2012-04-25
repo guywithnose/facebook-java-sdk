@@ -329,6 +329,7 @@ public class facebookTest
     req.addCookie(facebook.publicGetSignedRequestCookieName(),
         kSignedRequestWithBogusSignature);
     assertNull(facebook.publicGetSignedRequest());
+    assertEquals("Bad Signed JSON signature!", facebook.getLastError());
   }
 
   /**
@@ -351,29 +352,26 @@ public class facebookTest
    * 
    * @throws JSONException
    *           the jSON exception
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
   @Test
-  public void testAPI_LoggedOutUsers() throws JSONException
+  public void testAPI_LoggedOutUsers() throws JSONException,
+      FacebookApiException
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     TransientFacebook facebook = new TransientFacebook(config, req);
-    try
+    JSONObject response = facebook.api(new HashMap<String, String>()
     {
-      JSONObject response = facebook.api(new HashMap<String, String>()
       {
-        {
-          put("method", "fql.query");
-          put("query", "SELECT name FROM user WHERE uid=4");
-        }
-      });
-      assertEquals("Expect one row back.", response.getJSONArray("data")
-          .length(), 1);
-      assertEquals("Expect the name back.", response.getJSONArray("data")
-          .getJSONObject(0).getString("name"), "Mark Zuckerberg");
-    } catch (FacebookApiException e)
-    {
-      fail(e.getMessage());
-    }
+        put("method", "fql.query");
+        put("query", "SELECT name FROM user WHERE uid=4");
+      }
+    });
+    assertEquals("Expect one row back.",
+        response.getJSONArray("data").length(), 1);
+    assertEquals("Expect the name back.", response.getJSONArray("data")
+        .getJSONObject(0).getString("name"), "Mark Zuckerberg");
   }
 
   /**
@@ -579,7 +577,7 @@ public class facebookTest
     try
     {
       // we dont expect facebook will ever return in 50ms
-      BaseFacebook.timeout = 50;
+      BaseFacebook.timeout = 5;
       facebook.api("/naitik");
     } catch (FacebookApiException e)
     {
@@ -596,38 +594,31 @@ public class facebookTest
     }
   }
       
-      /**
-       * Tests the graphAPI method using only params.
-       */
-      @Test
-      public void testGraphAPI_OnlyParams() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
+  /**
+   * Tests the graphAPI method using only params.
+   * 
+   * @throws FacebookApiException
+   *           the facebook api exception
+   */
+  @Test
+  public void testGraphAPI_OnlyParams() throws FacebookApiException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
 
-        $response = $facebook->api("/jerry");
-        assertTrue(isset($response["id"]),
-                          "User ID should be public.");
-        assertTrue(isset($response["name"]),
-                          "User\"s name should be public.");
-        assertTrue(isset($response["first_name"]),
-                          "User\"s first name should be public.");
-        assertTrue(isset($response["last_name"]),
-                          "User\"s last name should be public.");
-        assertFalse(isset($response["work"]),
-                           "User\"s work history should only be available with ".
-                           "a valid access token.");
-        assertFalse(isset($response["education"]),
-                           "User\"s education history should only be ".
-                           "available with a valid access token.");
-        assertFalse(isset($response["verified"]),
-                           "User\"s verification status should only be ".
-                           "available with a valid access token.");
-                           */
-      }
+    JSONObject response = facebook.api("/jerry");
+    assertTrue("User ID should be public.", response.has("id"));
+    assertTrue("User\"s name should be public.", response.has("name"));
+    assertTrue("User\"s first name should be public.",
+        response.has("first_name"));
+    assertTrue("User\"s last name should be public.", response.has("last_name"));
+    assertFalse("User\"s work history should only be available with "
+        + "a valid access token.", response.has("work"));
+    assertFalse("User\"s education history should only be "
+        + "available with a valid access token.", response.has("education"));
+    assertFalse("User\"s verification status should only be "
+        + "available with a valid access token.", response.has("verified"));
+  }
       
       /**
        * Tests the loginURL method using defaults.
@@ -1075,6 +1066,7 @@ public class facebookTest
        */
       @Before
       public void setUp() {
+        BaseFacebook.timeout = 10000;
         try
         {
           config = new JSONObject("{\"appId\": \""+APP_ID+"\",\"secret\": \""+SECRET+"\"}");

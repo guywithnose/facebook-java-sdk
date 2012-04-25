@@ -218,14 +218,10 @@ public class JavaCurl
             }
 
             return stringBuilder.toString();
-        }catch (SocketTimeoutException e)
+        }catch (Exception e)
         {
-          throw e;
-      } catch (Exception e)
-        {
-          e.printStackTrace();
-          return "";
-      }
+          throw new SocketTimeoutException(e.getMessage());
+        }
     }
 
 }

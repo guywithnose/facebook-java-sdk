@@ -1008,7 +1008,10 @@ abstract public class BaseFacebook
       {
         exception.put("error_code", 28);
         JSONObject error = new JSONObject();
-        error.put("message", e.getMessage());
+        if(e.getMessage() != null)
+          error.put("message", e.getMessage());
+        else
+          error.put("message", "Unknown error");
         error.put("type", "CurlException");
         exception.put("error", error);
       } catch (JSONException e1)

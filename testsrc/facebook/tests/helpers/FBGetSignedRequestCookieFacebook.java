@@ -10,6 +10,8 @@ import org.json.JSONObject;
 public class FBGetSignedRequestCookieFacebook extends TransientFacebook
 {
 
+  private String errorMessage;
+
   /**
    * Instantiates a new fB get signed request cookie facebook.
    * 
@@ -42,6 +44,22 @@ public class FBGetSignedRequestCookieFacebook extends TransientFacebook
   public String publicGetSignedRequestCookieName()
   {
     return getSignedRequestCookieName();
+  }
+  
+  @Override
+  protected void errorLog(String msg)
+  {
+    errorMessage = msg;
+  }
+  
+  /**
+   * Gets the last error.
+   * 
+   * @return the last error
+   */
+  public String getLastError()
+  {
+    return errorMessage;
   }
   
 }
