@@ -534,28 +534,37 @@ public class facebookTest
     }
 
   }
-      
-      /**
-       * Tests the graphAPIMethodOAuthSpecError method.
-       */
-      @Test
-      public void testGraphAPIMethodOAuthSpecError() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::MIGRATED_APP_ID,
-          "secret" => self::MIGRATED_SECRET,
-        ));
 
-        try {
-          $response = $facebook->api("/daaku.shah", "DELETE", array(
-            "client_id" => self::MIGRATED_APP_ID));
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          assertEquals(strpos($e, "invalid_request"), 0);
-        }
-        */
-      }
+  /**
+   * Tests the graphAPI method using method o auth spec error.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testGraphAPI_MethodOAuthSpecError() throws JSONException
+  {
+    config.put("appId", MIGRATED_APP_ID);
+    config.put("secret", MIGRATED_SECRET);
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    try
+    {
+      JSONObject response = facebook.api("/daaku.shah", "DELETE",
+          new HashMap<String, String>()
+          {
+            {
+              put("client_id", MIGRATED_APP_ID);
+            }
+          });
+
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      assertEquals(e.toString().substring(0, 15), "invalid_request");
+    }
+  }
       
       /**
        * Tests the curlFailure method.
