@@ -454,85 +454,86 @@ public class facebookTest
       assertEquals("Expect the invalid OAuth token message.", msg, e.toString());
     }
   }
-      
-      /**
-       * Tests the graphAPIWithExpiredAccessToken method.
-       */
-      @Test
-      public void testGraphAPIWithExpiredAccessToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $facebook->setAccessToken(self::$kExpiredAccessToken);
-        try {
-          $response = $facebook->api("/me");
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          // means the server got the access token and didn't like it
-          $error_msg_start = "OAuthException: Error validating access token:";
-          assertTrue(strpos((string) $e, $error_msg_start) === 0,
-                            "Expect the token validation error message.");
+  /**
+   * Tests the graphAPI method using expired access token.
+   */
+  @Test
+  public void testGraphAPI_ExpiredAccessToken()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    facebook.setAccessToken(kExpiredAccessToken);
+    try
+    {
+      JSONObject response = facebook.api("/me");
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      // means the server got the access token and didn't like it
+      String error_msg_start = "OAuthException: Error invalidating access token:";
+      assertEquals("Expect the token validation error message.", e.toString()
+          .substring(0, 48), error_msg_start);
+    }
+  }
+
+  /**
+   * Tests the graphAPIMethod method.
+   */
+  @Test
+  public void testGraphAPIMethod()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    try
+    {
+      // naitik being bold about deleting his entire record....
+      // let's hope this never actually passes.
+      JSONObject response = facebook.api("/naitik", "DELETE");
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      // ProfileDelete means the server understood the DELETE
+      String msg = "OAuthException: (#200) User cannot access this application";
+      assertEquals("Expect the invalid session message.", msg, e.toString());
+    }
+  }
+
+  /**
+   * Tests the graphAPI method using o auth spec error.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testGraphAPI_OAuthSpecError() throws JSONException
+  {
+    config.put("appId", MIGRATED_APP_ID);
+    config.put("secret", MIGRATED_SECRET);
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    try
+    {
+      JSONObject response = facebook.api("/me", new HashMap<String, String>()
+      {
+        {
+          put("client_id", MIGRATED_APP_ID);
         }
-        */
-      }
-      
-      /**
-       * Tests the graphAPIMethod method.
-       */
-      @Test
-      public void testGraphAPIMethod() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
+      });
 
-        try {
-          // naitik being bold about deleting his entire record....
-          // let"s hope this never actually passes.
-          $response = $facebook->api("/naitik", $method = "DELETE");
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          // ProfileDelete means the server understood the DELETE
-          $msg =
-            "OAuthException: (#200) User cannot access this application";
-          assertEquals($msg, (string) $e,
-                              "Expect the invalid session message.");
-        }
-        */
-      }
-      
-      /**
-       * Tests the graphAPIOAuthSpecError method.
-       */
-      @Test
-      public void testGraphAPIOAuthSpecError() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::MIGRATED_APP_ID,
-          "secret" => self::MIGRATED_SECRET,
-        ));
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      // means the server got the access token
+      String msg = "invalid_request: An active access token must be used "
+          + "to query information about the current user.";
+      assertEquals("Expect the invalid session message.", msg, e.toString());
+    }
 
-        try {
-          $response = $facebook->api("/me", array(
-            "client_id" => self::MIGRATED_APP_ID));
-
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          // means the server got the access token
-          $msg = "invalid_request: An active access token must be used ".
-                 "to query information about the current user.";
-          assertEquals($msg, (string) $e,
-                              "Expect the invalid session message.");
-        }
-        */
-      }
+  }
       
       /**
        * Tests the graphAPIMethodOAuthSpecError method.
@@ -1075,35 +1076,6 @@ public class facebookTest
         {
           e.printStackTrace();
         }
-      }
-
-      /**
-       * Tear down.
-       */
-      protected void tearDown() {
-        /* TODO Translate
-        clearSuperGlobals();
-        parent::tearDown();
-        */
-      }
-
-      /**
-       * Clear super globals.
-       */
-      protected void clearSuperGlobals() {
-        /* TODO Translate
-        unset($_SERVER["HTTPS"]);
-        unset($_SERVER["HTTP_HOST"]);
-        unset($_SERVER["REQUEST_URI"]);
-        $_SESSION = array();
-        $_COOKIE = array();
-        $_REQUEST = array();
-        $_POST = array();
-        $_GET = array();
-        if (session_id()) {
-          session_destroy();
-        }
-        */
       }
 
       /**

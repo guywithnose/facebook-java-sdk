@@ -599,6 +599,22 @@ abstract public class BaseFacebook
   {
     return _graph(path, method, params);
   }
+  
+  /**
+   * Api.
+   * 
+   * @param path
+   *          the path
+   * @param params
+   *          the params
+   * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
+   */
+  public JSONObject api(String path, HashMap<String, String> params) throws FacebookApiException
+  {
+    return _graph(path, "POST", params);
+  }
 
   /**
    * Constructs and returns the name of the cookie that potentially houses the
@@ -971,7 +987,7 @@ abstract public class BaseFacebook
     HashMap<String, String> headers = new HashMap<String, String>(){{
       put("User-Agent", "facebook-java-" + VERSION);
     }}; 
-    return JavaCurl.getUrl(url, "GET", params, headers);
+    return JavaCurl.getUrl(url, "POST", params, headers);
   }
 
   /**
