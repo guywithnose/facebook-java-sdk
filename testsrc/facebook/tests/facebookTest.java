@@ -195,7 +195,7 @@ public class facebookTest
 
     HashMap<String, String> query_map = parse_str(login_url.get("query"));
     assertIsSubset(expected_login_params, query_map);
-    // we don"t know what the state is, but we know it"s an md5 and should
+    // we don't know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
     assertEquals(32, query_map.get("state").length());
   }
@@ -228,7 +228,7 @@ public class facebookTest
         "http://www.test.com/unit-tests.php");
     HashMap<String, String> query_map = parse_str(login_url.get("query"));
     assertIsSubset(expected_login_params, query_map);
-    // we don"t know what the state is, but we know it"s an md5 and should
+    // we don't know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
     assertEquals(32, query_map.get("state").length());
   }
@@ -386,11 +386,11 @@ public class facebookTest
     TransientFacebook facebook = new TransientFacebook(config, req);
 
     facebook.setAccessToken("this-is-not-really-an-access-token");
-    // if we don"t set an access token and there"s no way to
+    // if we don't set an access token and there"s no way to
     // get one, then the FQL query below works beautifully, handing
     // over Zuck"s public data. But if you specify a bogus access
     // token as I have right here, then the FQL query should fail.
-    // We could return just Zuck"s public data, but that wouldn"t
+    // We could return just Zuck"s public data, but that wouldn't
     // advertise the issue that the access token is at worst broken
     // and at best expired.
     try
@@ -433,31 +433,27 @@ public class facebookTest
     JSONObject response = facebook.api("/jerry");
     assertEquals("should get expected id.", response.get("id"), "214707");
   }
-      
-      /**
-       * Tests the graphAPIWithBogusAccessToken method.
-       */
-      @Test
-      public void testGraphAPIWithBogusAccessToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $facebook->setAccessToken("this-is-not-really-an-access-token");
-        try {
-          $response = $facebook->api("/me");
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          // means the server got the access token and didn"t like it
-          $msg = "OAuthException: Invalid OAuth access token.";
-          assertEquals($msg, (string) $e,
-                              "Expect the invalid OAuth token message.");
-        }
-        */
-      }
+  /**
+   * Tests the graphAPI method using bogus access token.
+   */
+  @Test
+  public void testGraphAPI_BogusAccessToken()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    facebook.setAccessToken("this-is-not-really-an-access-token");
+    try
+    {
+      JSONObject response = facebook.api("/me");
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      // means the server got the access token and didn't like it
+      String msg = "OAuthException: Invalid OAuth access token.";
+      assertEquals("Expect the invalid OAuth token message.", msg, e.toString());
+    }
+  }
       
       /**
        * Tests the graphAPIWithExpiredAccessToken method.
@@ -476,7 +472,7 @@ public class facebookTest
           $response = $facebook->api("/me");
           fail("Should not get here.");
         } catch(FacebookApiException $e) {
-          // means the server got the access token and didn"t like it
+          // means the server got the access token and didn't like it
           $error_msg_start = "OAuthException: Error validating access token:";
           assertTrue(strpos((string) $e, $error_msg_start) === 0,
                             "Expect the token validation error message.");
@@ -573,7 +569,7 @@ public class facebookTest
         ));
 
         if (!defined("CURLOPT_TIMEOUT_MS")) {
-          // can"t test it if we don"t have millisecond timeouts
+          // can't test it if we don't have millisecond timeouts
           return;
         }
 
