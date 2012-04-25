@@ -14,7 +14,7 @@ import facebook.tests.helpers.TransientFacebook;
 /**
  * The Class facebookTest.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused","static-method"})
 public class facebookTest
 {
 
@@ -87,40 +87,18 @@ public class facebookTest
     facebook.setAppId("dummy");
     assertEquals("Expect the App ID to be dummy.", facebook.getAppId(), "dummy");
   }
-      
-      /**
-       * Tests the setAPISecret method.
-       */
-      @Test
-      public void testSetAPISecret() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $facebook->setApiSecret("dummy");
-        assertEquals($facebook->getApiSecret(), "dummy",
-                            "Expect the API secret to be dummy.");
-                            */
-      }
-      
-      /**
-       * Tests the setAPPSecret method.
-       */
-      @Test
-      public void testSetAPPSecret() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $facebook->setAppSecret("dummy");
-        assertEquals($facebook->getAppSecret(), "dummy",
-                            "Expect the API secret to be dummy.");
-                            */
-      }
+
+  /**
+   * Tests the setAPPSecret method.
+   */
+  @Test
+  public void testSetAPPSecret()
+  {
+    BaseFacebook facebook = new TransientFacebook(config);
+    facebook.setAppSecret("dummy");
+    assertEquals("Expect the API secret to be dummy.", facebook.getAppSecret(),
+        "dummy");
+  }
       
       /**
        * Tests the setAccessToken method.
