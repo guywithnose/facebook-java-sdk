@@ -1,5 +1,6 @@
 package facebook;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,22 +35,27 @@ public class FacebookApiException extends Exception
     {
       code = result.getInt("error_code") != 0 ? Integer.valueOf(result
           .getInt("error_code")) : 0;
+
+      if (result.has("error_description"))
+      {
+        // OAuth 2.0 Draft 10 style
+        message = result.getString("error_description");
+      } else if (result.has("error"))
+      {
+        // OAuth 2.0 Draft 00 style
+        message = result.getJSONObject("error").getString("message");
+      } else if (result.has("error_msg"))
+      { // Rest server style
+        message = result.getString("error_msg");
+      } else
+      {
+        message = "Unknown Error. Check getResult()";
+      }
     } catch (JSONException e)
     {
       e.printStackTrace();
     }
 
-    /*
-     * TODO translate this if (isset($result['error_description'])) { // OAuth
-     * 2.0 Draft 10 style $msg = $result['error_description']; } else if
-     * (isset($result['error']) && is_array($result['error'])) { // OAuth 2.0
-     * Draft 00 style $msg = $result['error']['message']; } else if
-     * (isset($result['error_msg'])) { // Rest server style $msg =
-     * $result['error_msg']; } else { $msg = 'Unknown Error. Check getResult()';
-     * }
-     * 
-     * parent::__construct($msg, $code);
-     */
   }
 
   /**
@@ -61,6 +67,11 @@ public class FacebookApiException extends Exception
   {
     return result;
   }
+  
+  public String getMessage()
+  {
+    return message;
+  }
 
   /**
    * Returns the associated type for the error. This will default to 'Exception'
@@ -70,12 +81,30 @@ public class FacebookApiException extends Exception
    */
   public String getType()
   {
-    /*
-     * TODO translate this if (isset($this->result['error'])) { $error =
-     * $this->result['error']; if (is_string($error)) { // OAuth 2.0 Draft 10
-     * style return $error; } else if (is_array($error)) { // OAuth 2.0 Draft 00
-     * style if (isset($error['type'])) { return $error['type']; } } }
-     */
+    try
+    {
+      if (result.has("error"))
+      {
+        Object error;
+        error = result.get("error");
+
+        if (error instanceof String)
+        {
+          // OAuth 2.0 Draft 10 style
+          return (String) error;
+        } else if (error instanceof JSONObject)
+        {
+          // OAuth 2.0 Draft 00 style
+          if (((JSONObject) error).has("type"))
+          {
+            return ((JSONObject) error).getString("type");
+          }
+        }
+      }
+    } catch (JSONException e)
+    {
+      e.printStackTrace();
+    }
 
     return "Exception";
   }

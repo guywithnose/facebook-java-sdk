@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import facebook.BaseFacebook;
 import facebook.Facebook;
+import facebook.FacebookApiException;
 import facebook.tests.helpers.FBAccessToken;
 import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
@@ -33,6 +34,7 @@ public class facebookTest
   /** The SECRET. */
   private final String SECRET = "943716006e74d9b9283d4d5d8ab93204";
 
+  /** The config. */
   private JSONObject config;
 
   /** The MIGRATE d_ ap p_ id. */
@@ -156,7 +158,6 @@ public class facebookTest
     // first test when equal signs are present
 
     req.setRequestString("http://www.test.com/unit-tests.php?one=&two=&three=");
-    facebook = new FBGetCurrentURLFacebook(config, req);
 
     current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
@@ -165,7 +166,6 @@ public class facebookTest
     // then test when equal signs are not present
 
     req.setRequestString("http://www.test.com/unit-tests.php?one&two&three");
-    facebook = new FBGetCurrentURLFacebook(config, req);
     current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
         "http://www.test.com/unit-tests.php?one&two&three", current_url);
@@ -347,64 +347,74 @@ public class facebookTest
   }
 
   /**
-   * Tests the APIForLoggedOutUsers method.
+   * Tests the API method using logged out users.
    * 
    * @throws JSONException
    *           the jSON exception
    */
   @Test
-  public void testAPIForLoggedOutUsers() throws JSONException
+  public void testAPI_LoggedOutUsers() throws JSONException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    try
+    {
+      Object response = facebook.api(new HashMap<String, String>()
+      {
+        {
+          put("method", "fql.query");
+          put("query", "SELECT name FROM user WHERE uid=4");
+        }
+      });
+      assertTrue(response instanceof JSONArray);
+      assertEquals("Expect one row back.", ((JSONArray) response).length(), 1);
+      assertEquals("Expect the name back.", ((JSONArray) response)
+          .getJSONObject(0).getString("name"), "Mark Zuckerberg");
+    } catch (FacebookApiException e)
+    {
+      fail(e.getMessage());
+    }
+  }
+
+  /**
+   * Tests the API method using bogus access token.
+   */
+  @Test
+  public void testAPI_BogusAccessToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     TransientFacebook facebook = new TransientFacebook(config, req);
 
-    Object response = facebook.api(new HashMap<String, String>()
+    facebook.setAccessToken("this-is-not-really-an-access-token");
+    // if we don"t set an access token and there"s no way to
+    // get one, then the FQL query below works beautifully, handing
+    // over Zuck"s public data. But if you specify a bogus access
+    // token as I have right here, then the FQL query should fail.
+    // We could return just Zuck"s public data, but that wouldn"t
+    // advertise the issue that the access token is at worst broken
+    // and at best expired.
+    try
     {
+      Object response = facebook.api(new HashMap<String, String>()
       {
-        put("method", "fql.query");
-        put("query", "SELECT name FROM user WHERE uid=4");
-      }
-    });
-    assertTrue(response instanceof JSONArray);
-    assertEquals("Expect one row back.", ((JSONArray) response).length(), 1);
-    assertEquals("Expect the name back.",
-        ((JSONArray) response).getJSONObject(0).getString("name"),
-        "Mark Zuckerberg");
-  }
-      
-      /**
-       * Tests the APIWithBogusAccessToken method.
-       */
-      @Test
-      public void testAPIWithBogusAccessToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-
-        $facebook->setAccessToken("this-is-not-really-an-access-token");
-        // if we don"t set an access token and there"s no way to
-        // get one, then the FQL query below works beautifully, handing
-        // over Zuck"s public data.  But if you specify a bogus access
-        // token as I have right here, then the FQL query should fail.
-        // We could return just Zuck"s public data, but that wouldn"t
-        // advertise the issue that the access token is at worst broken
-        // and at best expired.
-        try {
-          $response = $facebook->api(array(
-            "method" => "fql.query",
-            "query" => "SELECT name FROM profile WHERE id=4",
-          ));
-          fail("Should not get here.");
-        } catch(FacebookApiException $e) {
-          $result = $e->getResult();
-          assertTrue(is_array($result), "expect a result object");
-          assertEquals("190", $result["error_code"], "expect code");
+        {
+          put("method", "fql.query");
+          put("query", "SELECT name FROM user WHERE uid=4");
         }
-        */
+      });
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      JSONObject result = e.getResult();
+      try
+      {
+        assertEquals(190, result.getInt("error_code"));
+      } catch (JSONException e1)
+      {
+        fail(e1.getMessage());
       }
+    }
+  }
       
       /**
        * Tests the APIGraphPublicData method.
@@ -1130,6 +1140,13 @@ public class facebookTest
         }
       }
       
+      /**
+       * Parse_url.
+       * 
+       * @param url
+       *          the url
+       * @return the hash map
+       */
       protected HashMap<String,String> parse_url(String url)
       {
         HashMap<String, String> urlParts = new HashMap<String, String>();

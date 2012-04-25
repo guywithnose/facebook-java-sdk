@@ -534,8 +534,10 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return the jSON object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  public Object api(HashMap<String, String> params)
+  public Object api(HashMap<String, String> params) throws FacebookApiException
   {
     return _restserver(params); 
   }
@@ -756,8 +758,9 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return mixed The decoded response object
+   * @throws FacebookApiException 
    */
-  protected Object _restserver(HashMap<String, String> params)
+  protected Object _restserver(HashMap<String, String> params) throws FacebookApiException
   {
     // generic application level parameters
     params.put("api_key", getAppId());
@@ -1240,20 +1243,41 @@ abstract public class BaseFacebook
    * @param result
    *          the result
    */
-  protected void throwAPIException(Object result)
+  protected void throwAPIException(Object result) throws FacebookApiException
   {
-    /*
-     * TODO Translate $e = new FacebookApiException($result); switch
-     * ($e->getType()) { // OAuth 2.0 Draft 00 style case 'OAuthException': //
-     * OAuth 2.0 Draft 10 style case 'invalid_token': // REST server errors are
-     * just Exceptions case 'Exception': $message = $e->getMessage(); if
-     * ((strpos($message, 'Error validating access token') !== false) ||
-     * (strpos($message, 'Invalid OAuth access token') !== false) ||
-     * (strpos($message, 'An active access token must be used') !== false) ) {
-     * destroySession(); } break; }
-     * 
-     * throw $e;
-     */
+    FacebookApiException e;
+    if (result instanceof JSONObject)
+    {
+      e = new FacebookApiException((JSONObject) result);
+    } else if (result instanceof JSONArray)
+    {
+      JSONObject JO_Result = new JSONObject();
+      try
+      {
+        JO_Result.put("data", result);
+      } catch (JSONException e1)
+      {
+        e1.printStackTrace();
+      }
+      e = new FacebookApiException(JO_Result);
+    } else
+    {
+      e = new FacebookApiException(new JSONObject());
+    }
+    if (e.getType() == "OAuthException" || e.getType() == "invalid_token"
+        || e.getType() == "Exception")
+    {
+      String message = e.getMessage();
+      if (message.indexOf("Error validating access token") != -1
+          || message.indexOf("Invalid OAuth access token") != -1
+          || message.indexOf("An active access token must be used") != -1)
+      {
+        destroySession();
+      }
+    }
+
+    throw e;
+
   }
 
   /**
