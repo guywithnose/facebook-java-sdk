@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import facebook.BaseFacebook;
 import facebook.Facebook;
+import facebook.tests.helpers.FBAccessToken;
 import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.FBGetSignedRequestCookieFacebook;
@@ -328,26 +329,21 @@ public class facebookTest
         kSignedRequestWithBogusSignature);
     assertNull(facebook.publicGetSignedRequest());
   }
-      
-      /**
-       * Tests the nonUserAccessToken method.
-       */
-      @Test
-      public void testNonUserAccessToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBAccessToken(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        // no cookies, and no request params, so no user or code,
-        // so no user access token (even with cookie support)
-        assertEquals($facebook->publicGetApplicationAccessToken(),
-                            $facebook->getAccessToken(),
-                            "Access token should be that for logged out users.");
-                            */
-      }
+  /**
+   * Tests the nonUserAccessToken method.
+   */
+  @Test
+  public void testNonUserAccessToken()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBAccessToken facebook = new FBAccessToken(config, req);
+
+    // no cookies, and no request params, so no user or code,
+    // so no user access token (even with cookie support)
+    assertEquals("Access token should be that for logged out users.",
+        facebook.publicGetApplicationAccessToken(), facebook.getAccessToken());
+  }
       
       /**
        * Tests the APIForLoggedOutUsers method.
