@@ -565,48 +565,42 @@ public class facebookTest
       assertEquals(e.toString().substring(0, 15), "invalid_request");
     }
   }
+
+  /**
+   * Tests the curlFailure method.
+   */
+  @Test
+  public void testCurlFailure()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    FacebookApiException exception = null;
+    try
+    {
+      // we dont expect facebook will ever return in 50ms
+      BaseFacebook.timeout = 50;
+      facebook.api("/naitik");
+    } catch (FacebookApiException e)
+    {
+      exception = e;
+    }
+
+    if (exception == null)
+    {
+      fail("no exception was thrown on timeout.");
+    } else
+    {
+      assertEquals(28, exception.getCode());
+      assertEquals("CurlException", exception.getType());
+    }
+  }
       
       /**
-       * Tests the curlFailure method.
+       * Tests the graphAPI method using only params.
        */
       @Test
-      public void testCurlFailure() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-
-        if (!defined("CURLOPT_TIMEOUT_MS")) {
-          // can't test it if we don't have millisecond timeouts
-          return;
-        }
-
-        $exception = null;
-        try {
-          // we dont expect facebook will ever return in 1ms
-          Facebook::$CURL_OPTS[CURLOPT_TIMEOUT_MS] = 50;
-          $facebook->api("/naitik");
-        } catch(FacebookApiException $e) {
-          $exception = $e;
-        }
-        unset(Facebook::$CURL_OPTS[CURLOPT_TIMEOUT_MS]);
-        if (!$exception) {
-          fail("no exception was thrown on timeout.");
-        }
-
-        assertEquals(
-          CURLE_OPERATION_TIMEOUTED, $exception->getCode(), "expect timeout");
-        assertEquals("CurlException", $exception->getType(), "expect type");
-        */
-      }
-      
-      /**
-       * Tests the graphAPIWithOnlyParams method.
-       */
-      @Test
-      public void testGraphAPIWithOnlyParams() {
+      public void testGraphAPI_OnlyParams() {
         fail("Not implemented.");
         /* TODO Translate
         $facebook = new TransientFacebook(array(
@@ -636,10 +630,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginURLDefaults method.
+       * Tests the loginURL method using defaults.
        */
       @Test
-      public void testLoginURLDefaults() {
+      public void testLoginURL_Defaults() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -655,10 +649,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginURLDefaultsDropStateQueryParam method.
+       * Tests the loginURL method using defaults drop state query param.
        */
       @Test
-      public void testLoginURLDefaultsDropStateQueryParam() {
+      public void testLoginURL_DefaultsDropStateQueryParam() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -676,10 +670,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginURLDefaultsDropCodeQueryParam method.
+       * Tests the loginURL method using defaults drop code query param.
        */
       @Test
-      public void testLoginURLDefaultsDropCodeQueryParam() {
+      public void testLoginURL_DefaultsDropCodeQueryParam() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -697,10 +691,11 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginURLDefaultsDropSignedRequestParamButNotOthers method.
+       * Tests the loginURL method using defaults drop signed request param but
+       * not others.
        */
       @Test
-      public void testLoginURLDefaultsDropSignedRequestParamButNotOthers() {
+      public void testLoginURL_DefaultsDropSignedRequestParamButNotOthers() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -719,10 +714,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginURLCustomNext method.
+       * Tests the loginURL method using custom next.
        */
       @Test
-      public void testLoginURLCustomNext() {
+      public void testLoginURL_CustomNext() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -746,10 +741,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the logoutURLDefaults method.
+       * Tests the logoutURL method using defaults.
        */
       @Test
-      public void testLogoutURLDefaults() {
+      public void testLogoutURL_Defaults() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -765,10 +760,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginStatusURLDefaults method.
+       * Tests the loginStatusURL method using defaults.
        */
       @Test
-      public void testLoginStatusURLDefaults() {
+      public void testLoginStatusURL_Defaults() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -784,10 +779,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the loginStatusURLCustom method.
+       * Tests the loginStatusURL method using custom.
        */
       @Test
-      public void testLoginStatusURLCustom() {
+      public void testLoginStatusURL_Custom() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -810,10 +805,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the nonDefaultPort method.
+       * Tests the getLoginUrl method using non default port.
        */
       @Test
-      public void testNonDefaultPort() {
+      public void testGetLoginUrl_NonDefaultPort() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com:8080";
@@ -829,10 +824,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the secureCurrentUrl method.
+       * Tests the getLoginUrl method using secure current url.
        */
       @Test
-      public void testSecureCurrentUrl() {
+      public void testGetLoginUrl_SecureCurrentUrl() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com";
@@ -849,10 +844,11 @@ public class facebookTest
       }
       
       /**
-       * Tests the secureCurrentUrlWithNonDefaultPort method.
+       * Tests the getLoginUrl method using secure current url with non default
+       * port.
        */
       @Test
-      public void testSecureCurrentUrlWithNonDefaultPort() {
+      public void testGetLoginUrl_SecureCurrentUrlWithNonDefaultPort() {
         fail("Not implemented.");
         /* TODO Translate
         $_SERVER["HTTP_HOST"] = "fbrell.com:8080";
@@ -931,10 +927,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the nonTossedSignedtoken method.
+       * Tests the signedToken method using non tossed signedtoken.
        */
       @Test
-      public void testNonTossedSignedtoken() {
+      public void testSignedToken_NonTossedSignedtoken() {
         fail("Not implemented.");
         /* TODO Translate
         $facebook = new FBPublic(array(
@@ -993,10 +989,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the getUserAndAccessTokenFromSession method.
+       * Tests the getUserAndAccessToken method using session.
        */
       @Test
-      public void testGetUserAndAccessTokenFromSession() {
+      public void testGetUserAndAccessToken_Session() {
         fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(
@@ -1017,10 +1013,11 @@ public class facebookTest
       }
       
       /**
-       * Tests the getUserAndAccessTokenFromSignedRequestNotSession method.
+       * Tests the getUserAndAccessToken method using signed request not
+       * session.
        */
       @Test
-      public void testGetUserAndAccessTokenFromSignedRequestNotSession() {
+      public void testGetUserAndAccessToken_SignedRequestNotSession() {
         fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(
@@ -1047,10 +1044,10 @@ public class facebookTest
       }
       
       /**
-       * Tests the getUserWithoutCodeOrSignedRequestOrSession method.
+       * Tests the getUser method using no code or signed request or session.
        */
       @Test
-      public void testGetUserWithoutCodeOrSignedRequestOrSession() {
+      public void testGetUser_NoCodeOrSignedRequestOrSession() {
         fail("Not implemented.");
         /* TODO Translate
         $facebook = new PersistentFBPublic(array(

@@ -71,6 +71,16 @@ public class FacebookApiException extends Exception
   {
     return message;
   }
+  
+  /**
+   * Gets the code.
+   * 
+   * @return the code
+   */
+  public int getCode()
+  {
+    return code;
+  }
 
   /**
    * Returns the associated type for the error. This will default to 'Exception'

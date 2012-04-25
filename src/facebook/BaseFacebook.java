@@ -5,6 +5,7 @@
 package facebook;
 
 import java.math.BigInteger;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,6 +107,9 @@ abstract public class BaseFacebook
 
   /** The req. */
   protected HttpServletRequest req;
+
+  /** The timeout. */
+  public static int timeout = 5000;
   
   /**
    * Initialize a Facebook Application.
@@ -959,8 +963,10 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return string The decoded response object
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
-  protected String _oauthRequest(String url, HashMap<String, String> params)
+  protected String _oauthRequest(String url, HashMap<String, String> params) throws FacebookApiException
   {
 
     if (!params.containsKey("access_token"))
@@ -981,13 +987,37 @@ abstract public class BaseFacebook
    * @param params
    *          the params
    * @return string The response text
+   * @throws FacebookApiException
    */
   protected String makeRequest(String url, HashMap<String, String> params)
+      throws FacebookApiException
   {
-    HashMap<String, String> headers = new HashMap<String, String>(){{
-      put("User-Agent", "facebook-java-" + VERSION);
-    }}; 
-    return JavaCurl.getUrl(url, "POST", params, headers);
+    HashMap<String, String> headers = new HashMap<String, String>()
+    {
+      {
+        put("User-Agent", "facebook-java-" + VERSION);
+      }
+    };
+    try
+    {
+      return JavaCurl.getUrl(url, "POST", params, headers, timeout);
+    } catch (SocketTimeoutException e)
+    {
+      JSONObject exception = new JSONObject();
+      try
+      {
+        exception.put("error_code", 28);
+        JSONObject error = new JSONObject();
+        error.put("message", e.getMessage());
+        error.put("type", "CurlException");
+        exception.put("error", error);
+      } catch (JSONException e1)
+      {
+        e1.printStackTrace();
+      }
+      throwAPIException(exception);
+      return "";
+    }
   }
 
   /**
@@ -1334,27 +1364,11 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  protected void throwAPIException(Object result) throws FacebookApiException
+  protected void throwAPIException(JSONObject result)
+      throws FacebookApiException
   {
     FacebookApiException e;
-    if (result instanceof JSONObject)
-    {
-      e = new FacebookApiException((JSONObject) result);
-    } else if (result instanceof JSONArray)
-    {
-      JSONObject JO_Result = new JSONObject();
-      try
-      {
-        JO_Result.put("data", result);
-      } catch (JSONException e1)
-      {
-        e1.printStackTrace();
-      }
-      e = new FacebookApiException(JO_Result);
-    } else
-    {
-      e = new FacebookApiException(new JSONObject());
-    }
+    e = new FacebookApiException(result);
     if (e.getType() == "OAuthException" || e.getType() == "invalid_token"
         || e.getType() == "Exception")
     {
@@ -1366,9 +1380,7 @@ abstract public class BaseFacebook
         destroySession();
       }
     }
-
     throw e;
-
   }
 
   /**

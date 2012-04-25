@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,10 +24,12 @@ public class JavaCurl
      * Get Url.
      * 
      * @param url
-     *            the url
+     *          the url
      * @return the url
+     * @throws SocketTimeoutException
+     *           the socket timeout exception
      */
-    public static String getUrl(String url)
+    public static String getUrl(String url) throws SocketTimeoutException
     {
         return getUrl(url, "GET", new HashMap<String, String>());
     }
@@ -66,7 +69,13 @@ public class JavaCurl
             @Override
             public void run()
             {
-                getUrl(urlASync, methodASync, paramsASync);
+                try
+                {
+                  getUrl(urlASync, methodASync, paramsASync);
+                } catch (SocketTimeoutException e)
+                {
+                  e.printStackTrace();
+                }
             }
 
             public aSync(String Url, String Method,
@@ -94,11 +103,35 @@ public class JavaCurl
      * @param params
      *          the params
      * @return the url
+     * @throws SocketTimeoutException
+     *           the socket timeout exception
      */
     public static String getUrl(String url, String method,
-        HashMap<String, String> params)
+        HashMap<String, String> params) throws SocketTimeoutException
     {
       return getUrl(url, method, params, new HashMap<String, String>());
+    }
+    
+
+    /**
+     * Gets the url.
+     * 
+     * @param url
+     *          the url
+     * @param method
+     *          the method
+     * @param params
+     *          the params
+     * @param headers
+     *          the headers
+     * @return the url
+     * @throws SocketTimeoutException
+     *           the socket timeout exception
+     */
+    public static String getUrl(String url, String method,
+        HashMap<String, String> params, HashMap<String, String> headers) throws SocketTimeoutException
+    {
+      return getUrl(url, method, params, headers, 5000);
     }
     
     /**
@@ -112,10 +145,14 @@ public class JavaCurl
      *          the params
      * @param headers
      *          the headers
+     * @param timeout
+     *          the timeout
      * @return the url
+     * @throws SocketTimeoutException
+     *           the socket timeout exception
      */
     public static String getUrl(String url, String method,
-        HashMap<String, String> params, HashMap<String, String> headers)
+        HashMap<String, String> params, HashMap<String, String> headers, int timeout) throws SocketTimeoutException
     {
         try
         {
@@ -123,7 +160,7 @@ public class JavaCurl
             HttpURLConnection http = (HttpURLConnection) u.openConnection();
             http.setRequestMethod(method);
             http.setUseCaches(false);
-            http.setReadTimeout(0);
+            http.setReadTimeout(timeout);
             http.setConnectTimeout(0);
             for(String headerName : headers.keySet())
             {
@@ -181,11 +218,14 @@ public class JavaCurl
             }
 
             return stringBuilder.toString();
-        } catch (Exception e)
+        }catch (SocketTimeoutException e)
         {
-            e.printStackTrace();
-            return "";
-        }
+          throw e;
+      } catch (Exception e)
+        {
+          e.printStackTrace();
+          return "";
+      }
     }
 
 }
