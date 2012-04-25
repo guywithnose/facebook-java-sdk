@@ -313,24 +313,21 @@ public class facebookTest
     assertEquals("Failed to get user ID from a valid signed request.",
         1677846385, facebook.getUser());
   }
-      
-      /**
-       * Tests the getSignedRequestWithIncorrectSignature method.
-       */
-      @Test
-      public void testGetSignedRequestWithIncorrectSignature() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBGetSignedRequestCookieFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
 
-        $_COOKIE[$facebook->publicGetSignedRequestCookieName()] =
-          self::$kSignedRequestWithBogusSignature;
-        assertNull($facebook->publicGetSignedRequest());
-        */
-      }
+  /**
+   * Tests the getSignedRequest method using incorrect signature.
+   */
+  @Test
+  public void testGetSignedRequest_IncorrectSignature()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBGetSignedRequestCookieFacebook facebook = new FBGetSignedRequestCookieFacebook(
+        config, req);
+
+    req.addCookie(facebook.publicGetSignedRequestCookieName(),
+        kSignedRequestWithBogusSignature);
+    assertNull(facebook.publicGetSignedRequest());
+  }
       
       /**
        * Tests the nonUserAccessToken method.
