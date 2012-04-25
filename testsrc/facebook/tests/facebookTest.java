@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -344,28 +345,32 @@ public class facebookTest
     assertEquals("Access token should be that for logged out users.",
         facebook.publicGetApplicationAccessToken(), facebook.getAccessToken());
   }
-      
-      /**
-       * Tests the APIForLoggedOutUsers method.
-       */
-      @Test
-      public void testAPIForLoggedOutUsers() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $response = $facebook->api(array(
-          "method" => "fql.query",
-          "query" => "SELECT name FROM user WHERE uid=4",
-        ));
-        assertEquals(count($response), 1,
-                            "Expect one row back.");
-        assertEquals($response[0]["name"], "Mark Zuckerberg",
-                            "Expect the name back.");
-                            */
+
+  /**
+   * Tests the APIForLoggedOutUsers method.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testAPIForLoggedOutUsers() throws JSONException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+
+    Object response = facebook.api(new HashMap<String, String>()
+    {
+      {
+        put("method", "fql.query");
+        put("query", "SELECT name FROM user WHERE uid=4");
       }
+    });
+    assertTrue(response instanceof JSONArray);
+    assertEquals("Expect one row back.", ((JSONArray) response).length(), 1);
+    assertEquals("Expect the name back.",
+        ((JSONArray) response).getJSONObject(0).getString("name"),
+        "Mark Zuckerberg");
+  }
       
       /**
        * Tests the APIWithBogusAccessToken method.

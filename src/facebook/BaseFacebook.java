@@ -15,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,7 +34,7 @@ abstract public class BaseFacebook
   /**
    * Version.
    */
-  public static final String VERSION = "3.1.1";
+  public static final String VERSION = "0.1";
 
   /**
    * List of query parameters that get automatically dropped when rebuilding the
@@ -530,16 +531,57 @@ abstract public class BaseFacebook
   /**
    * Make an API call.
    * 
-   * @return mixed The decoded response
+   * @param params
+   *          the params
+   * @return the jSON object
    */
-  public Object api(/* polymorphic */)
+  public Object api(HashMap<String, String> params)
   {
-    /*
-     * TODO Translate $args = func_get_args(); if (is_array($args[0])) { return
-     * _restserver($args[0]); } else { return call_user_func_array(array($this,
-     * '_graph'), $args); }
-     */
-    return null;
+    return _restserver(params); 
+  }
+  
+  /**
+   * Api.
+   * 
+   * @param path
+   *          the path
+   * @return the jSON object
+   */
+  public JSONObject api(String path)
+  {
+    return _graph(path);
+  }
+  
+
+  /**
+   * Api.
+   * 
+   * @param path
+   *          the path
+   * @param method
+   *          the method
+   * @return the jSON object
+   */
+  public JSONObject api(String path, String method)
+  {
+    return _graph(path, method);
+  }
+  
+  /**
+   * Api.
+   * 
+   * @param path
+   *          the path
+   * @param method
+   *          the method
+   * @param params
+   *          the params
+   * @return the jSON object
+   */
+  public JSONObject api(String path, String method,
+      HashMap<String, String> params)
+  {
+    return _graph(path, method, params);
   }
 
   /**
@@ -715,24 +757,42 @@ abstract public class BaseFacebook
    *          the params
    * @return mixed The decoded response object
    */
-  protected JSONObject _restserver(HashMap<String, String> params)
+  protected Object _restserver(HashMap<String, String> params)
   {
-    /*
-     * TODO Translate // generic application level parameters $params['api_key']
-     * = getAppId(); $params['format'] = 'json-strings';
-     * 
-     * $result = json_decode(_oauthRequest( getApiUrl($params['method']),
-     * $params ), true);
-     * 
-     * // results are returned, errors are thrown if (is_array($result) &&
-     * isset($result['error_code'])) { throwAPIException($result); }
-     * 
-     * if ($params['method'] === 'auth.expireSession' || $params['method'] ===
-     * 'auth.revokeAuthorization') { destroySession(); }
-     * 
-     * return $result;
-     */
-    return null;
+    // generic application level parameters
+    params.put("api_key", getAppId());
+    params.put("format", "json-strings");
+
+    Object result = new JSONObject();
+    String response = _oauthRequest(getApiUrl(params.get("method")),
+        params);
+    try
+    {
+      result = new JSONObject(response);
+    } catch (JSONException e)
+    {
+      try
+      {
+        result = new JSONArray(response);
+      } catch (JSONException e1)
+      {
+        throwAPIException(result);
+      }
+    }
+
+    // results are returned, errors are thrown
+    if (result instanceof JSONObject && ((JSONObject)result).has("error_code"))
+    {
+      throwAPIException(result);
+    }
+
+    if (params.get("method") == "auth.expireSession"
+        || params.get("method") == "auth.revokeAuthorization")
+    {
+      destroySession();
+    }
+
+    return result;
   }
 
   /**
@@ -833,19 +893,15 @@ abstract public class BaseFacebook
    *          the params
    * @return string The decoded response object
    */
-  protected String _oauthRequest(String url, String params)
+  protected String _oauthRequest(String url, HashMap<String, String> params)
   {
-    /*
-     * TODO Translate if (!isset($params['access_token'])) {
-     * $params['access_token'] = getAccessToken(); }
-     * 
-     * // json_encode all params values that are not strings foreach ($params as
-     * $key => $value) { if (!is_string($value)) { $params[$key] =
-     * json_encode($value); } }
-     * 
-     * return makeRequest($url, $params);
-     */
-    return null;
+
+    if (!params.containsKey("access_token"))
+    {
+      params.put("access_token", getAccessToken());
+    }
+
+    return makeRequest(url, params);
   }
 
   /**
@@ -859,39 +915,12 @@ abstract public class BaseFacebook
    *          the params
    * @return string The response text
    */
-  protected String makeRequest(String url, String params)
+  protected String makeRequest(String url, HashMap<String, String> params)
   {
-    JavaCurl.getUrl(url);
-    /*
-     * 
-     * public static $CURL_OPTS = array( CURLOPT_CONNECTTIMEOUT => 10,
-     * CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60, CURLOPT_USERAGENT
-     * => 'facebook-php-3.1', );
-     * 
-     * $opts = self::$CURL_OPTS; if (getFileUploadSupport()) {
-     * $opts[CURLOPT_POSTFIELDS] = $params; } else { $opts[CURLOPT_POSTFIELDS] =
-     * http_build_query($params, null, '&'); } $opts[CURLOPT_URL] = $url;
-     * 
-     * // disable the 'Expect: 100-continue' behaviour. This causes CURL to wait
-     * // for 2 seconds if the server does not support this header. if
-     * (isset($opts[CURLOPT_HTTPHEADER])) { $existing_headers =
-     * $opts[CURLOPT_HTTPHEADER]; $existing_headers[] = 'Expect:';
-     * $opts[CURLOPT_HTTPHEADER] = $existing_headers; } else {
-     * $opts[CURLOPT_HTTPHEADER] = array('Expect:'); }
-     * 
-     * curl_setopt_array($ch, $opts); $result = curl_exec($ch);
-     * 
-     * if (curl_errno($ch) == 60) { // CURLE_SSL_CACERT self::errorLog('Invalid
-     * or no certificate authority found, '. 'using bundled information');
-     * curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) .
-     * '/fb_ca_chain_bundle.crt'); $result = curl_exec($ch); }
-     * 
-     * if ($result === false) { $e = new FacebookApiException(array(
-     * 'error_code' => curl_errno($ch), 'error' => array( 'message' =>
-     * curl_error($ch), 'type' => 'CurlException', ), )); curl_close($ch); throw
-     * $e; } curl_close($ch); return $result;
-     */
-    return null;
+    HashMap<String, String> headers = new HashMap<String, String>(){{
+      put("User-Agent", "facebook-java-" + VERSION);
+    }}; 
+    return JavaCurl.getUrl(url, "GET", params, headers);
   }
 
   /**
@@ -1211,7 +1240,7 @@ abstract public class BaseFacebook
    * @param result
    *          the result
    */
-  protected void throwAPIException(JSONObject result)
+  protected void throwAPIException(Object result)
   {
     /*
      * TODO Translate $e = new FacebookApiException($result); switch

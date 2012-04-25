@@ -3,6 +3,8 @@
  */
 package facebook.tests.helpers;
 
+import java.util.HashMap;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONObject;
@@ -37,7 +39,7 @@ public class FBRecordURL extends TransientFacebook
    * java.lang.String)
    */
   @Override
-  protected String _oauthRequest(String Url, String params)
+  protected String _oauthRequest(String Url, HashMap<String, String> params)
   {
     url = Url;
     return "";
