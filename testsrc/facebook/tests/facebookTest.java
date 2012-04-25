@@ -4,11 +4,15 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import facebook.BaseFacebook;
+import facebook.tests.helpers.FBGetCurrentURLFacebook;
+import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.TransientFacebook;
 
 /**
@@ -127,48 +131,40 @@ public class facebookTest
         facebook.getFileUploadSupport());
   }
 
-      /**
-       * Tests the getCurrentURL method.
-       */
-      @Test
-      public void testGetCurrentURL() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBGetCurrentURLFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
+  /**
+   * Tests the getCurrentURL method.
+   */
+  @Test
+  public void testGetCurrentURL()
+  {
+    FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config);
 
-        // fake the HPHP $_SERVER globals
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php?one=one&two=two&three=three";
-        $current_url = $facebook->publicGetCurrentUrl();
-        assertEquals(
-          "http://www.test.com/unit-tests.php?one=one&two=two&three=three",
-          $current_url,
-          "getCurrentUrl void is changing the current URL");
+    // fake the request object
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    req.setRequestString("http://www.test.com/unit-tests.php?one=one&two=two&three=three");
+    String current_url = facebook.publicGetCurrentUrl(req);
+    assertEquals("getCurrentUrl void is changing the current URL",
+        "http://www.test.com/unit-tests.php?one=one&two=two&three=three",
+        current_url);
 
-        // ensure structure of valueless GET params is retained (sometimes
-        // an = sign was present, and sometimes it was not)
-        // first test when equal signs are present
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php?one=&two=&three=";
-        $current_url = $facebook->publicGetCurrentUrl();
-        assertEquals(
-          "http://www.test.com/unit-tests.php?one=&two=&three=",
-          $current_url,
-          "getCurrentUrl void is changing the current URL");
+    // ensure structure of valueless GET params is retained (sometimes
+    // an = sign was present, and sometimes it was not)
+    // first test when equal signs are present
 
-        // now confirm that
-        $_SERVER["HTTP_HOST"] = "www.test.com";
-        $_SERVER["REQUEST_URI"] = "/unit-tests.php?one&two&three";
-        $current_url = $facebook->publicGetCurrentUrl();
-        assertEquals(
-          "http://www.test.com/unit-tests.php?one&two&three",
-          $current_url,
-          "getCurrentUrl void is changing the current URL");
-          */
-      }
+    req.setRequestString("http://www.test.com/unit-tests.php?one=&two=&three=");
+
+    current_url = facebook.publicGetCurrentUrl(req);
+    assertEquals("getCurrentUrl void is changing the current URL",
+        "http://www.test.com/unit-tests.php?one=&two=&three=", current_url);
+
+    // then test when equal signs are not present
+
+    req.setRequestString("http://www.test.com/unit-tests.php?one&two&three");
+    
+    current_url = facebook.publicGetCurrentUrl(req);
+    assertEquals("getCurrentUrl void is changing the current URL",
+        "http://www.test.com/unit-tests.php?one&two&three", current_url);
+  }
       
       /**
        * Tests the getLoginURL method.

@@ -1,10 +1,21 @@
+/*
+ * File:         BaseFacebook.java
+ * Author:       Robert Bittle <guywithnose@gmail.com>
+ */
 package facebook;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.sun.xml.internal.ws.util.StringUtils;
+
+import facebook.tests.helpers.HttpServletRequestMock;
 
 /**
  * Provides access to the Facebook Platform. This class provides a majority of
@@ -25,7 +36,8 @@ abstract public class BaseFacebook
    * Default options for curl.
    */
   /*
-   * TODO Convert this to a Java equivalent public static $CURL_OPTS = array(
+   * TODO Convert this to a Java equivalent
+   * public static $CURL_OPTS = array(
    * CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_RETURNTRANSFER => true,
    * CURLOPT_TIMEOUT => 60, CURLOPT_USERAGENT => 'facebook-php-3.1', );
    */
@@ -1007,32 +1019,46 @@ abstract public class BaseFacebook
    * 
    * @return string The current URL
    */
-  protected String getCurrentUrl()
+  protected String getCurrentUrl(HttpServletRequest req)
   {
-    /*
-     * TODO Translate if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on'
-     * || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
-     * && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') { $protocol =
-     * 'https://'; } else { $protocol = 'http://'; } $currentUrl = $protocol .
-     * $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; $parts =
-     * parse_url($currentUrl);
-     * 
-     * $query = ''; if (!empty($parts['query'])) { // drop known fb params
-     * $params = explode('&', $parts['query']); $retained_params = array();
-     * foreach ($params as $param) { if (shouldRetainParam($param)) {
-     * $retained_params[] = $param; } }
-     * 
-     * if (!empty($retained_params)) { $query = '?'.implode($retained_params,
-     * '&'); } }
-     * 
-     * // use port if non default $port = isset($parts['port']) && (($protocol
-     * === 'http://' && $parts['port'] !== 80) || ($protocol === 'https://' &&
-     * $parts['port'] !== 443)) ? ':' . $parts['port'] : '';
-     * 
-     * // rebuild return $protocol . $parts['host'] . $port . $parts['path'] .
-     * $query;
-     */
-    return null;
+    String currentUrl = req.getRequestURL().toString();
+    String query = req.getQueryString();
+    if (query != null)
+    { // drop known fb params
+      String[] params = query.split("&");
+      ArrayList<String> retained_params = new ArrayList<String>();
+      for (String param : params)
+      {
+        if (shouldRetainParam(param))
+        {
+          retained_params.add(param);
+        }
+      }
+
+      if (retained_params.size() > 0)
+      {
+        query = "?";
+        StringBuilder queryBuilder = new StringBuilder();
+        for (String param : retained_params)
+        {
+          queryBuilder.append(param);
+          queryBuilder.append("&");
+        }
+        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        query += queryBuilder.toString();
+      }
+    }
+
+    // use port if non default
+    int port = req.getServerPort();
+    if ((port == 80 && "http".equals(req.getProtocol()))
+        || (port == 443 && "https".equals(req.getProtocol())))
+    {
+      port = -1;
+    }
+
+    return req.getProtocol() + "://" + req.getServerName() + (port != -1 ? port : "")
+        + req.getRequestURI() + query;
   }
 
   /**
@@ -1046,10 +1072,13 @@ abstract public class BaseFacebook
    */
   protected boolean shouldRetainParam(String param)
   {
-    /*
-     * TODO Translate foreach (self::$DROP_QUERY_PARAMS as $drop_query_param) {
-     * if (strpos($param, $drop_query_param.'=') === 0) { return false; } }
-     */
+    for (String drop_query_param : DROP_QUERY_PARAMS)
+    {
+      if (param.indexOf(drop_query_param + "=") == 0)
+      {
+        return false;
+      }
+    }
     return true;
   }
 

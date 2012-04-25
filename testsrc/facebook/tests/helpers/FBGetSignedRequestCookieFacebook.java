@@ -17,7 +17,6 @@ public class FBGetSignedRequestCookieFacebook extends TransientFacebook
   public FBGetSignedRequestCookieFacebook(JSONObject config)
   {
     super(config);
-    // TODO Auto-generated constructor stub
   }
 
   /**

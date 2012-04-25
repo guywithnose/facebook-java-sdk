@@ -4,6 +4,8 @@
  */
 package facebook.tests.helpers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONObject;
 
 /**
@@ -24,10 +26,11 @@ public class FBGetCurrentURLFacebook extends TransientFacebook {
   /**
    * Public get current url.
    *
+   * @param req the req
    * @return the string
    */
-  public String publicGetCurrentUrl() {
-    return getCurrentUrl();
+  public String publicGetCurrentUrl(HttpServletRequest req) {
+    return getCurrentUrl(req);
   }
   
 }
