@@ -50,7 +50,7 @@ public class TransientFacebook extends BaseFacebook
   @Override
   protected String getPersistentData(String key)
   {
-    return getPersistentData(key, "false");
+    return getPersistentData(key, null);
   }
 
   /**

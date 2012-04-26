@@ -3,6 +3,7 @@ package facebook.tests;
 import static org.junit.Assert.*;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 
@@ -642,27 +643,30 @@ public class facebookTest
     assertTrue("Expect the current url to exist.", facebook.getLoginUrl()
         .indexOf(encodedUrl) != -1);
   }
-      
-      /**
-       * Tests the loginURL method using defaults drop state query param.
-       */
-      @Test
-      public void testLoginURL_DefaultsDropStateQueryParam() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] = "/examples?state=xx42xx";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $expectEncodedUrl = rawurlencode("http://fbrell.com/examples");
-        assertTrue(strpos($facebook->getLoginUrl(), $expectEncodedUrl) > -1,
-                          "Expect the current url to exist.");
-        assertFalse(strpos($facebook->getLoginUrl(), "xx42xx"),
-                           "Expect the session param to be dropped.");
-                           */
-      }
+
+  /**
+   * Tests the loginURL method using defaults drop state query param.
+   */
+  @Test
+  public void testLoginURL_DefaultsDropStateQueryParam()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples?state=xx42xx");
+    String expectEncodedUrl = "";
+    try
+    {
+      expectEncodedUrl = URLEncoder.encode("http://fbrell.com/examples",
+          "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertFalse("Expect the current url to exist.", facebook.getLoginUrl()
+        .indexOf(expectEncodedUrl) == -1);
+    assertTrue("Expect the session param to be dropped.", facebook
+        .getLoginUrl().indexOf("xx42xx") == -1);
+  }
       
       /**
        * Tests the loginURL method using defaults drop code query param.
@@ -1144,6 +1148,13 @@ public class facebookTest
        */
       protected HashMap<String, String> parse_str(String query)
       {
+        try
+        {
+          query = URLDecoder.decode(query, "ISO-8859-1");
+        } catch (UnsupportedEncodingException e)
+        {
+          e.printStackTrace();
+        }
         HashMap<String, String> params = new HashMap<String, String>();
         for(String param : query.split("&"))
         {

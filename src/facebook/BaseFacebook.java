@@ -90,7 +90,7 @@ abstract public class BaseFacebook
   /**
    * A CSRF state variable to assist in the defense against CSRF attacks.
    */
-  protected String state;
+  protected String state = null;
 
   /**
    * The OAuth access token received in exchange for a valid authorization code.
@@ -468,7 +468,6 @@ abstract public class BaseFacebook
   {
     establishCSRFTokenState();
     String currentUrl = getCurrentUrl();
-
     params.put("client_id", getAppId());
     params.put("redirect_uri", currentUrl);
     params.put("state", state);
@@ -1284,17 +1283,16 @@ abstract public class BaseFacebook
     {
       query.append(key);
       query.append("=");
-      query.append(params.get(key));
+      try
+      {
+        query.append(URLEncoder.encode(params.get(key), "ISO-8859-1"));
+      } catch (UnsupportedEncodingException e)
+      {
+        e.printStackTrace();
+      }
       query.append("&");
     }
     query.deleteCharAt(query.length() - 1);
-    try
-    {
-      return URLEncoder.encode(query.toString(), "ISO-8859-1");
-    } catch (UnsupportedEncodingException e)
-    {
-      e.printStackTrace();
-    }
     return query.toString();
   }
 
@@ -1309,7 +1307,8 @@ abstract public class BaseFacebook
     String currentUrl = req.getRequestURL().toString();
     String query = req.getQueryString();
     if (query != null)
-    { // drop known fb params
+    {
+      // drop known fb params
       String[] params = query.split("&");
       ArrayList<String> retained_params = new ArrayList<String>();
       for (String param : params)
@@ -1320,6 +1319,7 @@ abstract public class BaseFacebook
         }
       }
 
+      query = null;
       if (retained_params.size() > 0)
       {
         query = "?";
@@ -1333,7 +1333,6 @@ abstract public class BaseFacebook
         query += queryBuilder.toString();
       }
     }
-
     // use port if non default
     int port = req.getServerPort();
     if ((port == 80 && "http".equals(req.getProtocol()))
