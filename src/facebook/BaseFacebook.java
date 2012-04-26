@@ -469,7 +469,8 @@ abstract public class BaseFacebook
     establishCSRFTokenState();
     String currentUrl = getCurrentUrl();
     params.put("client_id", getAppId());
-    params.put("redirect_uri", currentUrl);
+    if (!params.containsKey("redirect_uri"))
+      params.put("redirect_uri", currentUrl);
     params.put("state", state);
 
     return getUrl("www", "dialog/oauth", params);

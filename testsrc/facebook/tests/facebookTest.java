@@ -699,7 +699,6 @@ public class facebookTest
   @Test
   public void testLoginURL_DefaultsDropSignedRequestParamButNotOthers()
   {
-
     HttpServletRequestMock req = new HttpServletRequestMock();
     TransientFacebook facebook = new TransientFacebook(config, req);
     req.setRequestString("http://fbrell.com/examples?signed_request=xx42xx&do_not_drop=xx43xx");
@@ -719,34 +718,41 @@ public class facebookTest
     assertFalse("Expect the session param to be dropped.", facebook
         .getLoginUrl().indexOf("xx43xx") == -1);
   }
-      
-      /**
-       * Tests the loginURL method using custom next.
-       */
-      @Test
-      public void testLoginURL_CustomNext() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] = "/examples";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $next = "http://fbrell.com/custom";
-        $loginUrl = $facebook->getLoginUrl(array(
-          "redirect_uri" => $next,
-          "cancel_url" => $next
-        ));
-        $currentEncodedUrl = rawurlencode("http://fbrell.com/examples");
-        $expectedEncodedUrl = rawurlencode($next);
-        assertNotNull(strpos($loginUrl, $expectedEncodedUrl),
-                             "Expect the custom url to exist.");
-        assertFalse(strpos($loginUrl, $currentEncodedUrl),
-                          "Expect the current url to not exist.");
-                          */
+
+  /**
+   * Tests the loginURL method using custom next.
+   */
+  @Test
+  public void testLoginURL_CustomNext()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples");
+    String next = "http://fbrell.com/custom";
+    String loginUrl = facebook.getLoginUrl(new HashMap<String, String>()
+    {
+      {
+        put("redirect_uri", "http://fbrell.com/custom");
+        put("cancel_url", "http://fbrell.com/custom");
       }
-      
+    });
+    String currentEncodedUrl = "";
+    String expectedEncodedUrl = "";
+    try
+    {
+      currentEncodedUrl = URLEncoder.encode("http://fbrell.com/examples",
+          "ISO-8859-1");
+      expectedEncodedUrl = URLEncoder.encode(next, "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertFalse("Expect the custom url to exist.",
+        loginUrl.indexOf(expectedEncodedUrl) == -1);
+    assertTrue("Expect the current url to not exist.",
+        loginUrl.indexOf(currentEncodedUrl) == -1);
+  }
+
       /**
        * Tests the logoutURL method using defaults.
        */
