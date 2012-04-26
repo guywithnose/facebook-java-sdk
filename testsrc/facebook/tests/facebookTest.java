@@ -2,6 +2,8 @@ package facebook.tests;
 
 import static org.junit.Assert.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -619,25 +621,27 @@ public class facebookTest
     assertFalse("User\"s verification status should only be "
         + "available with a valid access token.", response.has("verified"));
   }
-      
-      /**
-       * Tests the loginURL method using defaults.
-       */
-      @Test
-      public void testLoginURL_Defaults() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] = "/examples";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $encodedUrl = rawurlencode("http://fbrell.com/examples");
-        assertNotNull(strpos($facebook->getLoginUrl(), $encodedUrl),
-                             "Expect the current url to exist.");
-                             */
-      }
+
+  /**
+   * Tests the loginURL method using defaults.
+   */
+  @Test
+  public void testLoginURL_Defaults()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples");
+    String encodedUrl = "";
+    try
+    {
+      encodedUrl = URLEncoder.encode("http://fbrell.com/examples", "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertTrue("Expect the current url to exist.", facebook.getLoginUrl()
+        .indexOf(encodedUrl) != -1);
+  }
       
       /**
        * Tests the loginURL method using defaults drop state query param.

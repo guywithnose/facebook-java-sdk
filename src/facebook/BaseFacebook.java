@@ -4,8 +4,10 @@
  */
 package facebook;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1286,6 +1288,13 @@ abstract public class BaseFacebook
       query.append("&");
     }
     query.deleteCharAt(query.length() - 1);
+    try
+    {
+      return URLEncoder.encode(query.toString(), "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
     return query.toString();
   }
 
