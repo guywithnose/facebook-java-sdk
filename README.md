@@ -9,7 +9,30 @@ This repository contains the open source Java SDK that allows you to access Face
 Usage
 -----
 
-(Usage instructions will go here)
+The minimal you'll need to have is:
+
+    Facebook facebook = new Facebook(new JSONObject("{\"appId\": \"" + APP_ID + "\",\"secret\": \""
+        + SECRET + "\"}"), HTTPrequest, HTTPresponse);
+    
+    long user = facebook.getUser();
+    
+    if (user != 0) {
+      try {
+        // Proceed knowing you have a logged in user who's authenticated.
+        JSONObject user_profile = facebook.api("/me");
+      } catch (FacebookApiException e) {
+        e.printStackTrace();
+        user = 0;
+      }
+    }
+
+Login or logout url will be needed depending on current user state.
+
+    if (user != 0) {
+      String logoutUrl = facebook.getLogoutUrl();
+    } else {
+      String loginUrl = facebook.getLoginUrl();
+    }
 
 Tests
 -----
