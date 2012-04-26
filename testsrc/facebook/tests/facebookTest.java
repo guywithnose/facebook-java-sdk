@@ -691,29 +691,34 @@ public class facebookTest
     assertTrue("Expect the session param to be dropped.", facebook
         .getLoginUrl().indexOf("xx42xx") == -1);
   }
-      
-      /**
-       * Tests the loginURL method using defaults drop signed request param but
-       * not others.
-       */
-      @Test
-      public void testLoginURL_DefaultsDropSignedRequestParamButNotOthers() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] =
-          "/examples?signed_request=xx42xx&do_not_drop=xx43xx";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $expectEncodedUrl = rawurlencode("http://fbrell.com/examples");
-        assertFalse(strpos($facebook->getLoginUrl(), "xx42xx"),
-                           "Expect the session param to be dropped.");
-        assertTrue(strpos($facebook->getLoginUrl(), "xx43xx") > -1,
-                          "Expect the do_not_drop param to exist.");
-                          */
-      }
+
+  /**
+   * Tests the loginURL method using defaults drop signed request param but not
+   * others.
+   */
+  @Test
+  public void testLoginURL_DefaultsDropSignedRequestParamButNotOthers()
+  {
+
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples?signed_request=xx42xx&do_not_drop=xx43xx");
+    String expectEncodedUrl = "";
+    try
+    {
+      expectEncodedUrl = URLEncoder.encode(
+          "http://fbrell.com/examples?do_not_drop=xx43xx", "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertFalse("Expect the current url to exist.", facebook.getLoginUrl()
+        .indexOf(expectEncodedUrl) == -1);
+    assertTrue("Expect the session param to be dropped.", facebook
+        .getLoginUrl().indexOf("xx42xx") == -1);
+    assertFalse("Expect the session param to be dropped.", facebook
+        .getLoginUrl().indexOf("xx43xx") == -1);
+  }
       
       /**
        * Tests the loginURL method using custom next.
