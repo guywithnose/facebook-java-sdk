@@ -901,34 +901,31 @@ public class facebookTest
         .indexOf(encodedUrl) == -1);
   }
 
-      /**
-       * Tests the appSecretCall method.
-       */
-      @Test
-      public void testAppSecretCall() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-
-        try {
-          $response = $facebook->api("/" . self::APP_ID . "/insights");
-          fail("Desktop applications need a user token for insights.");
-        } catch (FacebookApiException $e) {
-          // this test is failing as the graph call is returning the wrong
-          // error message
-          assertTrue(strpos($e->getMessage(),
-            "Requires session when calling from a desktop app") !== false,
-            "Incorrect exception type thrown when trying to gain " .
-            "insights for desktop app without a user access token.");
-        } catch (Exception $e) {
-          fail("Incorrect exception type thrown when trying to gain " .
-            "insights for desktop app without a user access token.");
-        }
-        */
-      }
+  /**
+   * Tests the appSecretCall method.
+   */
+  @Test
+  public void testAppSecretCall()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    try
+    {
+      JSONObject response = facebook.api("/" + APP_ID + "/insights");
+      fail("Desktop applications need a user token for insights.");
+    } catch (FacebookApiException e)
+    {
+      assertTrue(
+          "Incorrect exception type thrown when trying to gain "
+              + "insights for desktop app without a user access token.",
+          e.getMessage().indexOf(
+              "An access token is required to request this resource.") != -1);
+    } catch (Exception $e)
+    {
+      fail("Incorrect exception type thrown when trying to gain "
+          + "insights for desktop app without a user access token.");
+    }
+  }
 
   /**
    * Tests the base64UrlEncode method.
