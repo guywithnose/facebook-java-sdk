@@ -19,7 +19,7 @@ public class Facebook extends BaseFacebook
 {
 
   /** The session. */
-  HttpSession session;
+  protected HttpSession session;
 
   /**
    * Instantiates a new facebook.

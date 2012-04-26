@@ -5,6 +5,7 @@ package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 import facebook.Facebook;
@@ -54,6 +55,16 @@ public class PersistentFBPublic extends Facebook
   public void publicSetPersistentData(String key, String value)
   {
     setPersistentData(key, value);
+  }
+  
+  /**
+   * Gets the session.
+   * 
+   * @return the session
+   */
+  public HttpSession getSession()
+  {
+    return session;
   }
 
 }

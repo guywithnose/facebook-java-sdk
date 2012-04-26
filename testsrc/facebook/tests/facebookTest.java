@@ -31,7 +31,6 @@ import facebook.tests.helpers.HttpServletResponseMock;
 import facebook.tests.helpers.PersistentFBPublic;
 import facebook.tests.helpers.TransientFacebook;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class facebookTest.
  */
@@ -1107,21 +1106,24 @@ public class facebookTest
   @Test
   public void testGetUser_NoCodeOrSignedRequestOrSession()
   {
-    fail("Not implemented.");
-    /*
-     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
-     * self::APP_ID, "secret" => self::SECRET ));
-     * 
-     * // deliberately leave $_REQUEST and _$SESSION empty
-     * assertEmpty($_REQUEST, "GET, POST, and COOKIE params exist even though ".
-     * "they should.  Test cannot succeed unless all of ".
-     * "$_REQUEST is empty."); assertEmpty($_SESSION,
-     * "Session is carrying state and should not be.");
-     * assertEmpty($facebook->getUser(),
-     * "Got a user id, even without a signed request, ".
-     * "access token, or session variable."); assertEmpty($_SESSION,
-     * "Session superglobal incorrectly populated by getUser.");
-     */
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    PersistentFBPublic facebook = new PersistentFBPublic(config, req,
+        new HttpServletResponseMock());
+
+    // deliberately leave $_REQUEST and _$SESSION empty
+    assertTrue("GET, POST, and COOKIE params exist even though "
+        + "they should.  Test cannot succeed unless all of "
+        + "$_REQUEST is empty.", req.getParameterMap().size() == 0);
+    
+    assertFalse("Session is carrying state and should not be.", facebook
+        .getSession().getAttributeNames().hasMoreElements());
+    
+    assertEquals("Got a user id, even without a signed request, "
+        + "access token, or session variable.", 0, facebook.getUser());
+
+    assertFalse("Session superglobal incorrectly populated by getUser.",
+        facebook.getSession().getAttributeNames().hasMoreElements());
+
   }
 
   /**
