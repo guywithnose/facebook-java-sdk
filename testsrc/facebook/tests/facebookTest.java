@@ -1017,22 +1017,22 @@ public class facebookTest
 
   /**
    * Tests the bundledCACert method.
+   *
+   * @throws JSONException the jSON exception
+   * @throws FacebookApiException the facebook api exception
    */
   @Test
-  public void testBundledCACert()
+  public void testBundledCACert() throws JSONException, FacebookApiException
   {
-    fail("Not implemented.");
-    /*
-     * TODO Translate $facebook = new TransientFacebook(array( "appId" =>
-     * self::APP_ID, "secret" => self::SECRET ));
-     * 
-     * // use the bundled cert from the start
-     * Facebook::$CURL_OPTS[CURLOPT_CAINFO] = dirname(__FILE__) .
-     * "/../src/fb_ca_chain_bundle.crt"; $response = $facebook->api("/naitik");
-     * 
-     * unset(Facebook::$CURL_OPTS[CURLOPT_CAINFO]); assertEquals(
-     * $response["id"], "5526183", "should get expected id.");
-     */
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
+
+    // use the bundled cert from the start
+    BaseFacebook.certFile = "resource/fb_ca_chain_bundle.pfx";
+    BaseFacebook.password = "your_private_keypass";
+    JSONObject response = facebook.api("/naitik");
+    assertEquals("should get expected id.", 5526183, response.getLong("id"));
   }
 
   /**
@@ -1128,6 +1128,8 @@ public class facebookTest
   public void setUp()
   {
     BaseFacebook.timeout = 10000;
+    BaseFacebook.certFile = null;
+    BaseFacebook.password = null;
     try
     {
       config = new JSONObject("{\"appId\": \"" + APP_ID + "\",\"secret\": \""

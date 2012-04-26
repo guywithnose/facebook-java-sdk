@@ -126,6 +126,12 @@ abstract public class BaseFacebook
   /** The timeout. */
   public static int timeout = 5000;
 
+  /** The cert file. */
+  public static String certFile = null;
+
+  /** The password. */
+  public static String password = null;
+
   /**
    * Initialize a Facebook Application.
    * 
@@ -1081,7 +1087,7 @@ abstract public class BaseFacebook
     };
     try
     {
-      return JavaCurl.getUrl(url, "POST", params, headers, timeout);
+      return JavaCurl.getUrl(url, "POST", params, headers, timeout, certFile, password);
     } catch (SocketTimeoutException e)
     {
       JSONObject exception = new JSONObject();
