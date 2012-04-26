@@ -1082,24 +1082,23 @@ public class facebookTest
   @Test
   public void testGetUserAndAccessToken_SignedRequestNotSession()
   {
-    fail("Not implemented.");
-    /*
-     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
-     * self::APP_ID, "secret" => self::SECRET ));
-     * 
-     * $_REQUEST["signed_request"] = self::$kValidSignedRequest;
-     * $facebook->publicSetPersistentData("user_id", 41572);
-     * $facebook->publicSetPersistentData("access_token",
-     * self::$kExpiredAccessToken); assertNotEquals("41572",
-     * $facebook->getUser(),
-     * "Got user from session instead of signed request.");
-     * assertEquals("1677846385", $facebook->getUser(),
-     * "Failed to get correct user ID from signed request."); assertNotEquals(
-     * self::$kExpiredAccessToken, $facebook->getAccessToken(),
-     * "Got access token from session instead of signed request.");
-     * assertNotEmpty( $facebook->getAccessToken(),
-     * "Failed to extract an access token from the signed request.");
-     */
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    PersistentFBPublic facebook = new PersistentFBPublic(config, req,
+        new HttpServletResponseMock());
+
+    req.setParameter("signed_request", kValidSignedRequest);
+    facebook.publicSetPersistentData("user_id", "41572");
+    facebook.publicSetPersistentData("access_token", kExpiredAccessToken);
+    assertTrue("Got user from session instead of signed request.",
+        41572 != facebook.getUser());
+    assertEquals("Failed to get correct user ID from signed request.",
+        1677846385, facebook.getUser());
+    assertTrue("Got access token from session instead of signed request.",
+        !kExpiredAccessToken.equals(facebook.getAccessToken()));
+    assertNotNull("Failed to extract an access token from the signed request.",
+        facebook.getAccessToken());
+    assertTrue("Failed to extract an access token from the signed request.",
+        facebook.getAccessToken().length() > 0);
   }
 
   /**
