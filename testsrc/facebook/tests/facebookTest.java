@@ -772,29 +772,32 @@ public class facebookTest
     {
       e.printStackTrace();
     }
-    assertNotNull("Expect the current url to exist.", facebook.getLogoutUrl()
-        .indexOf(encodedUrl));
+    assertFalse("Expect the current url to exist.", facebook.getLogoutUrl()
+        .indexOf(encodedUrl) == -1);
   }
-      
-      /**
-       * Tests the loginStatusURL method using defaults.
-       */
-      @Test
-      public void testLoginStatusURL_Defaults() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] = "/examples";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $encodedUrl = rawurlencode("http://fbrell.com/examples");
-        assertNotNull(strpos($facebook->getLoginStatusUrl(), $encodedUrl),
-                             "Expect the current url to exist.");
-                             */
-      }
-      
+
+  /**
+   * Tests the loginStatusURL method using defaults.
+   */
+  @Test
+  public void testLoginStatusURL_Defaults()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples");
+    String encodedUrl = "";
+    try
+    {
+      encodedUrl = URLEncoder
+          .encode("http://fbrell.com/examples", "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertFalse("Expect the current url to exist.", facebook
+        .getLoginStatusUrl().indexOf(encodedUrl) == -1);
+  }
+
       /**
        * Tests the loginStatusURL method using custom.
        */

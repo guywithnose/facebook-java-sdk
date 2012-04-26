@@ -499,12 +499,9 @@ abstract public class BaseFacebook
    */
   public String getLogoutUrl(HashMap<String, String> params)
   {
-    /*
-     * TODO Translate return getUrl( 'www', 'logout.php', array_merge(array(
-     * 'next' => getCurrentUrl(), 'access_token' => getAccessToken(), ),
-     * $params) );
-     */
-    return null;
+    params.put("next",getCurrentUrl());
+    params.put("access_token",getAccessToken());
+    return getUrl( "www", "logout.php", params );
   }
 
   /**
