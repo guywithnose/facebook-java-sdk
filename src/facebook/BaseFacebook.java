@@ -533,10 +533,12 @@ abstract public class BaseFacebook
   {
     params.put("api_key", getAppId());
     params.put("no_user", getCurrentUrl());
-    params.put("no_session", getCurrentUrl());
-    params.put("ok_session", getCurrentUrl());
+    if (!params.containsKey("no_session"))
+      params.put("no_session", getCurrentUrl());
+    if (!params.containsKey("ok_session"))
+      params.put("ok_session", getCurrentUrl());
     params.put("session_version", "3");
-    return getUrl( "www", "extern/login_status.php", params);
+    return getUrl("www", "extern/login_status.php", params);
   }
 
   /**

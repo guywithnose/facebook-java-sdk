@@ -798,32 +798,40 @@ public class facebookTest
         .getLoginStatusUrl().indexOf(encodedUrl) == -1);
   }
 
-      /**
-       * Tests the loginStatusURL method using custom.
-       */
-      @Test
-      public void testLoginStatusURL_Custom() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com";
-        $_SERVER["REQUEST_URI"] = "/examples";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $encodedUrl1 = rawurlencode("http://fbrell.com/examples");
-        $okUrl = "http://fbrell.com/here1";
-        $encodedUrl2 = rawurlencode($okUrl);
-        $loginStatusUrl = $facebook->getLoginStatusUrl(array(
-          "ok_session" => $okUrl,
-        ));
-        assertNotNull(strpos($loginStatusUrl, $encodedUrl1),
-                             "Expect the current url to exist.");
-        assertNotNull(strpos($loginStatusUrl, $encodedUrl2),
-                             "Expect the custom url to exist.");
-                             */
-      }
-      
+  /**
+   * Tests the loginStatusURL method using custom.
+   */
+  @Test
+  public void testLoginStatusURL_Custom()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com/examples");
+    String encodedUrl1 = "";
+    String encodedUrl2 = "";
+    String okUrl = "http://fbrell.com/here1";
+    try
+    {
+      encodedUrl1 = URLEncoder.encode("http://fbrell.com/examples",
+          "ISO-8859-1");
+      encodedUrl2 = URLEncoder.encode(okUrl, "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    String loginStatusUrl = facebook
+        .getLoginStatusUrl(new HashMap<String, String>()
+        {
+          {
+            put("ok_session", "http://fbrell.com/here1");
+          }
+        });
+    assertFalse("Expect the current url to exist.",
+        loginStatusUrl.indexOf(encodedUrl1) == -1);
+    assertFalse("Expect the custom url to exist.",
+        loginStatusUrl.indexOf(encodedUrl2) == -1);
+  }
+
       /**
        * Tests the getLoginUrl method using non default port.
        */
