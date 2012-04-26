@@ -832,25 +832,28 @@ public class facebookTest
         loginStatusUrl.indexOf(encodedUrl2) == -1);
   }
 
-      /**
-       * Tests the getLoginUrl method using non default port.
-       */
-      @Test
-      public void testGetLoginUrl_NonDefaultPort() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $_SERVER["HTTP_HOST"] = "fbrell.com:8080";
-        $_SERVER["REQUEST_URI"] = "/examples";
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET,
-        ));
-        $encodedUrl = rawurlencode("http://fbrell.com:8080/examples");
-        assertNotNull(strpos($facebook->getLoginUrl(), $encodedUrl),
-                             "Expect the current url to exist.");
-                             */
-      }
-      
+  /**
+   * Tests the getLoginUrl method using non default port.
+   */
+  @Test
+  public void testGetLoginUrl_NonDefaultPort()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req);
+    req.setRequestString("http://fbrell.com:8080/examples");
+    String encodedUrl = "";
+    try
+    {
+      encodedUrl = URLEncoder.encode("http://fbrell.com:8080/examples",
+          "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    assertFalse("Expect the current url to exist.", facebook.getLoginUrl()
+        .indexOf(encodedUrl) == 1);
+  }
+
       /**
        * Tests the getLoginUrl method using secure current url.
        */

@@ -479,7 +479,7 @@ public class HttpServletRequestMock implements HttpServletRequest
     int colonIndex = url.indexOf(":", start); 
     if(colonIndex < slashIndex && colonIndex != -1)
     {
-      return Integer.valueOf(url.substring(start+colonIndex, slashIndex-colonIndex));
+      return Integer.valueOf(url.substring(colonIndex+1, slashIndex));
     }
     if("https".equals(getProtocol()))
     {
