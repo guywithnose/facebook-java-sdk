@@ -1,0 +1,19 @@
+This is a mock server to allow testing the api when you don't have internet.
+
+Sample hosts entry
+
+127.0.0.1 graph.facebook.com
+127.0.0.1 api-read.facebook.com
+
+Sample vhost entry
+<VirtualHost *:80>
+
+	DocumentRoot /<your source dir>/facebook-java-sdk/mockGraph
+	<Directory /<your source dir>/facebook-java-sdk/mockGraph/>
+		Order allow,deny
+		allow from all
+		RewriteEngine On
+		RewriteRule . index.php [L]
+	</Directory>
+
+</VirtualHost>
