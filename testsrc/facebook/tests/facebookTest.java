@@ -21,6 +21,7 @@ import facebook.tests.helpers.FBAccessToken;
 import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.FBGetSignedRequestCookieFacebook;
+import facebook.tests.helpers.FBPublic;
 import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.TransientFacebook;
 
@@ -908,21 +909,19 @@ public class facebookTest
         }
         */
       }
-      
-      /**
-       * Tests the base64UrlEncode method.
-       */
-      @Test
-      public void testBase64UrlEncode() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $input = "Facebook rocks";
-        $output = "RmFjZWJvb2sgcm9ja3M";
 
-        assertEquals(FBPublic::publicBase64UrlDecode($output), $input);
-        */
-      }
-      
+  /**
+   * Tests the base64UrlEncode method.
+   */
+  @Test
+  public void testBase64UrlEncode()
+  {
+    String input = "Facebook rocks";
+    String output = "RmFjZWJvb2sgcm9ja3M";
+
+    assertEquals(input, FBPublic.publicBase64UrlDecode(output));
+  }
+
       /**
        * Tests the signedToken method.
        */
