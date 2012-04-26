@@ -1341,7 +1341,7 @@ abstract public class BaseFacebook
       port = -1;
     }
 
-    return req.getProtocol() + "://" + req.getServerName() + (port != -1 ? port : "")
+    return req.getProtocol() + "://" + req.getServerName() + (port != -1 ? ":"+port : "")
         + req.getRequestURI() + (query != null ?query:"");
   }
 
