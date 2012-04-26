@@ -895,8 +895,6 @@ public class facebookTest
     {
       e.printStackTrace();
     }
-    System.out.println(facebook.getLoginUrl());
-    System.out.println(encodedUrl);
     assertFalse("Expect the current url to exist.", facebook.getLoginUrl()
         .indexOf(encodedUrl) == -1);
   }
@@ -939,25 +937,21 @@ public class facebookTest
     assertEquals(input, FBPublic.publicBase64UrlDecode(output));
   }
 
-      /**
-       * Tests the signedToken method.
-       */
-      @Test
-      public void testSignedToken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBPublic(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET
-        ));
-        $payload = $facebook->publicParseSignedRequest(self::$kValidSignedRequest);
-        assertNotNull($payload, "Expected token to parse");
-        assertEquals($facebook->getSignedRequest(), null);
-        $_REQUEST["signed_request"] = self::$kValidSignedRequest;
-        assertEquals($facebook->getSignedRequest(), $payload);
-        */
-      }
-      
+  /**
+   * Tests the signedToken method.
+   */
+  @Test
+  public void testSignedToken()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBPublic facebook = new FBPublic(config, req);
+    JSONObject payload = facebook.publicParseSignedRequest(kValidSignedRequest);
+    assertNotNull("Expected token to parse", payload);
+    assertNull(facebook.getSignedRequest());
+    req.setParameter("signed_request", kValidSignedRequest);
+    assertEquals(facebook.getSignedRequest().toString(), payload.toString());
+  }
+
       /**
        * Tests the signedToken method using non tossed signedtoken.
        */
