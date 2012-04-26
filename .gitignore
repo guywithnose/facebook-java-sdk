@@ -1,7 +1,10 @@
 *.class
 
 # Package Files #
-*.jar
 *.war
 *.ear
 *~
+manifest.mf
+docs/
+build/
+coverage/

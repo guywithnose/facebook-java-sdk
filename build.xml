@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+
+<project name="facebook-java-sdk" basedir="." default="package">
+
+	<!-- Project details -->
+	<property name="project.version" value="0.1" />
+
+	<!-- Load overrides for library paths -->
+	<property file="build.properties" />
+
+	<!-- Project paths -->
+	<property name="source.dir" location="src" />
+	<property name="test.source.dir" location="testsrc" />
+	<property name="output.dir" location="bin" />
+	<property name="package.dir" location="build" />
+	<property name="package.file" value="facebook-sdk.jar" />
+	<property name="javadoc.dir" location="docs/api" />
+	<property name="javadoc.packages" value="facebook.*" />
+	<property name="dist.dir" location=".." />
+	<property name="dist.name" value="facebook-sdk" />
+	<property name="dist.maven.file" value="${dist.name}-${project.version}-bundle.jar" />
+
+	<!-- Library paths -->
+	<property name="j2se.apiurl" value="http://docs.oracle.com/javase/6/docs/api/" />
+
+	<path id="project.classpath">
+		<pathelement location="lib/commons-codec-1.6.jar" />
+		<pathelement location="lib/json.jar" />
+		<pathelement location="lib/servlet-api.jar" />
+	</path>
+
+	<path id="coverage.classpath">
+		<path refid="project.classpath" />
+		<pathelement location="${output.dir}" />
+	</path>
+
+	<path id="test.classpath">
+		<path refid="project.classpath" />
+		<pathelement location="lib/junit-4.10.jar" />
+	</path>
+
+	<!-- output directory used for EMMA coverage reports: -->
+	<property name="coverage.dir" value="${basedir}/coverage" />
+	<property name="out.instr.dir" value="${coverage.dir}/instr" />
+
+	<!-- directory that contains emma.jar and emma_ant.jar: -->
+	<property name="emma.dir" value="emma" />
+
+	<!-- path element used by EMMA taskdef below: -->
+	<path id="emma.lib">
+		<pathelement location="${emma.dir}/emma.jar" />
+		<pathelement location="${emma.dir}/emma_ant.jar" />
+	</path>
+	
+        <taskdef resource="emma_ant.properties" classpathref="emma.lib" />
+
+	<!-- Targets -->
+
+	<target name="emma" description="turns on EMMA's on-the-fly instrumentation mode" >
+		<property name="emma.enabled" value="true" />
+	</target>
+
+	<target name="clean-compile" description="Remove the result of compilation">
+		<mkdir dir="${output.dir}" />
+		<delete>
+			<fileset dir="${output.dir}" />
+		</delete>
+	</target>
+
+	<target name="clean-coverage" description="Remove the result of the coverage target">
+		<mkdir dir="${coverage.dir}" />
+		<delete>
+			<fileset dir="${coverage.dir}" />
+		</delete>
+		<mkdir dir="${out.instr.dir}" />
+		<delete>
+			<fileset dir="${out.instr.dir}" />
+		</delete>
+	</target>
+
+	<target name="compile" description="Compile the program">
+		<echo message="Compiling source" />
+		<mkdir dir="${output.dir}" />
+
+		<javac srcdir="${source.dir}" destdir="${output.dir}" debug="true" debuglevel="lines,source,vars" deprecation="true" classpathref="project.classpath" includeantruntime="false" />
+	</target>
+
+	<target name="compile-tests" description="Compile the tests">
+		<echo message="Compiling tests" />
+		<javac srcdir="${test.source.dir}" destdir="${output.dir}" debug="false" classpathref="test.classpath" includeantruntime="false" />
+	</target>
+
+	<target name="clean-package" description="Remove the results of the package target">
+		<mkdir dir="${package.dir}" />
+		<delete>
+			<fileset dir="${package.dir}" />
+		</delete>
+	</target>
+
+	<target name="package" depends="compile, clean-package"
+		description="Create the .jar file">
+		<manifest file="manifest.mf">
+			<!-- Add manifest attributes here.. -->
+			<attribute name="Class-Path" value="commons-codec-1.6.jar,json.jar, servlet-api.jar" />
+		</manifest>
+		<jar basedir="${output.dir}" compress="true" jarfile="${package.dir}/${package.file}" manifest="manifest.mf"></jar>
+	</target>
+
+	<target name="clean-javadoc" description="Remove the Javadoc files">
+		<mkdir dir="${javadoc.dir}" />
+		<delete>
+			<fileset dir="${javadoc.dir}" />
+		</delete>
+	</target>
+
+	<target name="javadoc" depends="clean-javadoc" description="Create the Javadoc API documentation">
+		<echo message="Generating Javadocs" />
+		<javadoc sourcepath="${source.dir}" destdir="${javadoc.dir}" packagenames="${javadoc.packages}" Windowtitle="${ant.project.name}" Doctitle="${ant.project.name}" classpathref="project.classpath">
+			<link href="${j2se.apiurl}" />
+		</javadoc>
+	</target>
+
+	<!-- Source distribution -->
+	<target name="dist-src" depends="clean-compile, clean-package, javadoc"
+		description="Create the source distribution">
+		<zip zipfile="${dist.dir}/${dist.name}-${project.version}-src.zip">
+			<zipfileset dir="." prefix="${dist.name}-${project.version}" excludes="coverage/**/*" />
+		</zip>
+	</target>
+
+	<!-- Binary distribution -->
+	<target name="dist" depends="clean-compile, package, javadoc"
+		description="Create the binary distribution">
+		<zip zipfile="${dist.dir}/${dist.name}-${project.version}.zip">
+			<zipfileset dir="." prefix="${dist.name}-${project.version}" includes="README.md" />
+			<zipfileset dir="docs" prefix="${dist.name}-${project.version}/docs" />
+			<zipfileset dir="${package.dir}" prefix="${dist.name}-${project.version}/lib" />
+			<zipfileset dir="lib" prefix="${dist.name}-${project.version}/lib" />
+		</zip>
+	</target>
+
+	<!-- JUnit tests -->
+	<target name="run-tests" depends="compile, compile-tests"
+		description="Run JUint tests">
+		<echo message="Running unit tests" />
+
+		<emma enabled="${emma.enabled}">
+			<instr instrpathref="coverage.classpath" destdir="${out.instr.dir}" metadatafile="${coverage.dir}/metadata.emma" merge="true">
+				<filter value="+facebook.* -facebook.tests.*" />
+			</instr>
+		</emma>
+
+		<junit printsummary="withOutAndErr" showoutput="yes" fork="yes">
+			
+			<classpath>
+				<pathelement location="${out.instr.dir}" />
+				<path refid="coverage.classpath" />
+				<path refid="test.classpath" />
+				<path refid="emma.lib" />
+			</classpath>
+			<jvmarg value="-Demma.coverage.out.file=${coverage.dir}/coverage.emma" />
+			<jvmarg value="-Demma.coverage.out.merge=false" />
+			<test name="facebook.tests.facebookTest" />
+			
+		</junit>
+
+		<emma enabled="${emma.enabled}">
+			<report sourcepath="${source.dir}">
+				<fileset dir="${coverage.dir}">
+					<include name="*.emma" />
+				</fileset>
+
+				<txt outfile="${coverage.dir}/coverage.txt" />
+				<html outfile="${coverage.dir}/coverage.html" />
+			</report>
+		</emma>
+	</target>
+</project>

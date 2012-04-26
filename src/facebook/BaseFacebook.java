@@ -25,9 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import sun.misc.BASE64Encoder;
-
-import facebook.tests.helpers.HttpServletRequestMock;
+import data.JavaCurl;
 
 /**
  * Provides access to the Facebook Platform. This class provides a majority of
@@ -73,22 +71,16 @@ abstract public class BaseFacebook
 
   /**
    * The Application ID.
-   * 
-   * @var string
    */
   protected String appId;
 
   /**
    * The Application App Secret.
-   * 
-   * @var string
    */
   protected String appSecret;
 
   /**
    * The ID of the Facebook user, or 0 if the user is logged out.
-   * 
-   * @var integer
    */
   protected long user;
 
@@ -105,15 +97,11 @@ abstract public class BaseFacebook
   /**
    * The OAuth access token received in exchange for a valid authorization code.
    * null means the access token has yet to be determined.
-   * 
-   * @var string
    */
   protected String accessToken = null;
 
   /**
    * Indicates if the CURL based @ syntax for file uploads is enabled.
-   * 
-   * @var boolean
    */
   protected boolean fileUploadSupport = false;
 
@@ -1587,11 +1575,6 @@ abstract public class BaseFacebook
   /**
    * Stores the given ($key, $value) pair, so that future calls to
    * getPersistentData($key) return $value. This call may be in another request.
-   * 
-   * @param string
-   *          $key
-   * @param array
-   *          $value
    */
   abstract protected void setPersistentData(String key, String value);
 

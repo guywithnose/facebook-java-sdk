@@ -2,7 +2,7 @@
  * File:         JavaCurl.java
  * Author:       Robert Bittle <guywithnose@gmail.com>
  */
-package facebook;
+package data;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
