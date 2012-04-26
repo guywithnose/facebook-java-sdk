@@ -4,6 +4,7 @@
 package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 import facebook.Facebook;
@@ -21,10 +22,13 @@ public class PersistentFBPublic extends Facebook
    *          the config
    * @param Req
    *          the req
+   * @param Resp
+   *          the resp
    */
-  public PersistentFBPublic(JSONObject config, HttpServletRequest Req)
+  public PersistentFBPublic(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**

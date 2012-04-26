@@ -1,3 +1,7 @@
+/*
+ * File:         FBGetSignedRequestCookieFacebook.java
+ * Author:       Robert Bittle <guywithnose@gmail.com>
+ */
 package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,16 +18,16 @@ public class FBGetSignedRequestCookieFacebook extends TransientFacebook
 
   /**
    * Instantiates a new fB get signed request cookie facebook.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
   public FBGetSignedRequestCookieFacebook(JSONObject config,
-      HttpServletRequest Req)
+      HttpServletRequest Req,
+      HttpServletResponseMock Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**

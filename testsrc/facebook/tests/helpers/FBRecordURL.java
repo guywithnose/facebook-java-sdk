@@ -18,15 +18,15 @@ public class FBRecordURL extends TransientFacebook
 
   /**
    * Instantiates a new fB record url.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public FBRecordURL(JSONObject config, HttpServletRequest Req)
+  public FBRecordURL(JSONObject config, HttpServletRequest Req,
+      HttpServletResponseMock Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /** The url. */

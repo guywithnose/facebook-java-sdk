@@ -13,18 +13,17 @@ import org.json.JSONObject;
  */
 public class FBAccessToken extends TransientFacebook {
   
-
   /**
    * Instantiates a new fB access token.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public FBAccessToken(JSONObject config, HttpServletRequest Req)
+  public FBAccessToken(JSONObject config, HttpServletRequest Req,
+      HttpServletResponseMock Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**

@@ -1,26 +1,31 @@
 /*
- * File:         BaseFacebook.java
- * Author:       Robert Bittle <guywithnose@gmail.com>
+ * File: BaseFacebook.java Author: Robert Bittle <guywithnose@gmail.com>
  */
 package facebook;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.SocketTimeoutException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import sun.misc.BASE64Encoder;
 
 import facebook.tests.helpers.HttpServletRequestMock;
 
@@ -30,7 +35,10 @@ import facebook.tests.helpers.HttpServletRequestMock;
  * be sub-classed. The subclass must implement the four abstract methods listed
  * at the bottom of the file.
  */
-@SuppressWarnings({ "static-method", "unused" })
+@SuppressWarnings(
+{
+    "static-method", "unused"
+})
 abstract public class BaseFacebook
 {
 
@@ -43,8 +51,10 @@ abstract public class BaseFacebook
    * List of query parameters that get automatically dropped when rebuilding the
    * current URL.
    */
-  protected static String[] DROP_QUERY_PARAMS = new String[] { "code", "state",
-      "signed_request", };
+  protected static String[] DROP_QUERY_PARAMS = new String[]
+  {
+      "code", "state", "signed_request",
+  };
 
   /**
    * Maps aliases to Facebook domains.
@@ -110,37 +120,41 @@ abstract public class BaseFacebook
   /** The req. */
   protected HttpServletRequest req;
 
+  /** The req. */
+  protected HttpServletResponse resp;
+
   /** The timeout. */
   public static int timeout = 5000;
-  
+
   /**
    * Initialize a Facebook Application.
    * 
    * The configuration: - appId: the application ID - secret: the application
    * secret - fileUpload: (optional) boolean indicating if file uploads are
    * enabled
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public BaseFacebook(JSONObject config, HttpServletRequest Req)
+  public BaseFacebook(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
-    initialize(config, Req);
+    initialize(config, Req, Resp);
   }
-  
+
   /**
    * Initialize.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  protected void initialize(JSONObject config, HttpServletRequest Req)
+  protected void initialize(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
     req = Req;
+    resp = Resp;
     try
     {
       setAppId(config.getString("appId"));
@@ -285,41 +299,76 @@ abstract public class BaseFacebook
    */
   protected String getUserAccessToken()
   {
-    /*
-     * TODO Translate // first, consider a signed request if it's supplied. //
-     * if there is a signed request, then it alone determines // the access
-     * token. String code; JSONObject signed_request = getSignedRequest(); if
-     * (signed_request != null) { // apps.facebook.com hands the access_token in
-     * the signed_request if (signed_request.has("oauth_token")) { access_token
-     * = signed_request.getString("oauth_token");
-     * setPersistentData("access_token", access_token); return access_token; }
-     * 
-     * // the JS SDK puts a code in with the redirect_uri of '' if
-     * (signed_request.has("code")){ code = signed_request.getString("code");
-     * access_token = getAccessTokenFromCode(code, ""); if (access_token) {
-     * setPersistentData("code", code); setPersistentData("access_token",
-     * access_token); return access_token; } }
-     * 
-     * // signed request states there's no access token, so anything // stored
-     * should be cleared. clearAllPersistentData(); return null; // respect the
-     * signed request's data, even // if there's an authorization code or
-     * something else }
-     * 
-     * code = getCode(); if (code != null && code != getPersistentData("code"))
-     * { access_token = getAccessTokenFromCode(code); if (access_token) {
-     * setPersistentData("code", code); setPersistentData("access_token",
-     * access_token); return access_token; }
-     * 
-     * // code was bogus, so everything based on it should be invalidated.
-     * clearAllPersistentData(); return false; }
-     * 
-     * // as a fallback, just return whatever is in the persistent // store,
-     * knowing nothing explicit (signed request, authorization // code, etc.)
-     * was present to shadow it (or we saw a code in $_REQUEST, // but it's the
-     * same as what's in the persistent store) return
-     * getPersistentData("access_token");
-     */
-    return null;
+    // first, consider a signed request if it's supplied.
+    // if there is a signed request, then it alone determines
+    // the access token.
+    String code;
+    String access_token;
+    JSONObject signed_request = getSignedRequest();
+    if (signed_request != null)
+    {
+      // apps.facebook.com hands the access_token in the signed_request
+      try
+      {
+        if (signed_request.has("oauth_token"))
+        {
+          access_token = signed_request.getString("oauth_token");
+
+          setPersistentData("access_token", access_token);
+          return access_token;
+        }
+      } catch (JSONException e)
+      {
+        // Do Nothing
+      }
+      try
+      {
+        // the JS SDK puts a code in with the redirect_uri of ''
+        if (signed_request.has("code"))
+        {
+          code = signed_request.getString("code");
+          access_token = getAccessTokenFromCode(code, "");
+          if (access_token != null)
+          {
+            setPersistentData("code", code);
+            setPersistentData("access_token", access_token);
+            return access_token;
+          }
+        }
+      } catch (JSONException e)
+      {
+        // Do Nothing
+      }
+      // signed request states there's no access token, so anything
+      // stored should be cleared.
+      clearAllPersistentData();
+      return null;
+      // respect the signed request's data, even
+      // if there's an authorization code or something else
+    }
+
+    code = getCode();
+    if (code != null && code != getPersistentData("code"))
+    {
+      access_token = getAccessTokenFromCode(code);
+      if (access_token != null)
+      {
+        setPersistentData("code", code);
+        setPersistentData("access_token", access_token);
+        return access_token;
+      }
+
+      // code was bogus, so everything based on it should be invalidated.
+      clearAllPersistentData();
+      return null;
+    }
+
+    // as a fallback, just return whatever is in the persistent
+    // store, knowing nothing explicit (signed request, authorization
+    // code, etc.) was present to shadow it (or we saw a code in $_REQUEST,
+    // but it's the same as what's in the persistent store)
+    return getPersistentData("access_token");
+
   }
 
   /**
@@ -330,20 +379,19 @@ abstract public class BaseFacebook
    */
   public JSONObject getSignedRequest()
   {
-     if (signedRequest == null) 
-     { 
-       if(req.getParameter("signed_request") != null) 
-       { 
-         signedRequest = parseSignedRequest(req.getParameter("signed_request")); 
-       } 
-       else if(getCookie(getSignedRequestCookieName()) != null) 
-       { 
-         signedRequest = parseSignedRequest(getCookie(getSignedRequestCookieName())); 
-       } 
-     }
-     return signedRequest;
+    if (signedRequest == null)
+    {
+      if (req.getParameter("signed_request") != null)
+      {
+        signedRequest = parseSignedRequest(req.getParameter("signed_request"));
+      } else if (getCookie(getSignedRequestCookieName()) != null)
+      {
+        signedRequest = parseSignedRequest(getCookie(getSignedRequestCookieName()));
+      }
+    }
+    return signedRequest;
   }
-  
+
   /**
    * Gets the cookie.
    * 
@@ -354,9 +402,9 @@ abstract public class BaseFacebook
   protected String getCookie(String name)
   {
     Cookie[] cookies = req.getCookies();
-    for(Cookie cookie : cookies)
+    for (Cookie cookie : cookies)
     {
-      if(cookie.getName().equals(name))
+      if (cookie.getName().equals(name))
       {
         return cookie.getValue();
       }
@@ -499,9 +547,9 @@ abstract public class BaseFacebook
    */
   public String getLogoutUrl(HashMap<String, String> params)
   {
-    params.put("next",getCurrentUrl());
-    params.put("access_token",getAccessToken());
-    return getUrl( "www", "logout.php", params );
+    params.put("next", getCurrentUrl());
+    params.put("access_token", getAccessToken());
+    return getUrl("www", "logout.php", params);
   }
 
   /**
@@ -550,11 +598,12 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  public JSONObject api(HashMap<String, String> params) throws FacebookApiException
+  public JSONObject api(HashMap<String, String> params)
+      throws FacebookApiException
   {
-    return _restserver(params); 
+    return _restserver(params);
   }
-  
+
   /**
    * Api.
    * 
@@ -568,7 +617,6 @@ abstract public class BaseFacebook
   {
     return _graph(path);
   }
-  
 
   /**
    * Api.
@@ -585,7 +633,7 @@ abstract public class BaseFacebook
   {
     return _graph(path, method);
   }
-  
+
   /**
    * Api.
    * 
@@ -604,7 +652,7 @@ abstract public class BaseFacebook
   {
     return _graph(path, method, params);
   }
-  
+
   /**
    * Api.
    * 
@@ -616,7 +664,8 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  public JSONObject api(String path, HashMap<String, String> params) throws FacebookApiException
+  public JSONObject api(String path, HashMap<String, String> params)
+      throws FacebookApiException
   {
     return _graph(path, "POST", params);
   }
@@ -679,10 +728,17 @@ abstract public class BaseFacebook
    */
   protected long getUserFromAccessToken()
   {
-    /*
-     * TODO Translate try { $user_info = api('/me'); return $user_info['id']; }
-     * catch (FacebookApiException $e) { return 0; }
-     */
+    try
+    {
+      JSONObject user_info = api("/me");
+      return user_info.getLong("id");
+    } catch (FacebookApiException e)
+    {
+      // Do Nothing
+    } catch (JSONException e)
+    {
+      e.printStackTrace();
+    }
     return 0;
   }
 
@@ -719,8 +775,10 @@ abstract public class BaseFacebook
   {
     try
     {
-      String MD5 = new BigInteger((String.valueOf(Math.random())+String.valueOf(Math.random())+String.valueOf(Math.random())).replace(".", "")).toString(16);
-      return MD5.substring(0,32);
+      String MD5 = new BigInteger(
+          (String.valueOf(Math.random()) + String.valueOf(Math.random()) + String
+              .valueOf(Math.random())).replace(".", "")).toString(16);
+      return MD5.substring(0, 32);
     } catch (Exception e)
     {
       return "";
@@ -762,29 +820,46 @@ abstract public class BaseFacebook
    */
   protected String getAccessTokenFromCode(String code, String redirect_uri)
   {
-    /*
-     * TODO Translate if (empty($code)) { return false; }
-     * 
-     * if ($redirect_uri === null) { $redirect_uri = getCurrentUrl(); }
-     * 
-     * try { // need to circumvent json_decode by calling _oauthRequest //
-     * directly, since response isn't JSON format. $access_token_response =
-     * _oauthRequest( getUrl("graph", "/oauth/access_token"), $params =
-     * array("client_id" => getAppId(), "client_secret" => getAppSecret(),
-     * "redirect_uri" => $redirect_uri, "code" => $code)); } catch
-     * (FacebookApiException $e) { // most likely that user very recently
-     * revoked authorization. // In any event, we don't have an access token, so
-     * say so. return false; }
-     * 
-     * if (empty($access_token_response)) { return false; }
-     * 
-     * $response_params = array(); parse_str($access_token_response,
-     * $response_params); if (!isset($response_params['access_token'])) { return
-     * false; }
-     * 
-     * return $response_params['access_token'];
-     */
-    return null;
+    if (code == null)
+    {
+      return null;
+    }
+
+    if (redirect_uri == null)
+    {
+      redirect_uri = getCurrentUrl();
+    }
+    String access_token_response = "";
+    try
+    {
+      // need to circumvent json_decode by calling _oauthRequest
+      // directly, since response isn't JSON format.
+      HashMap<String, String> params = new HashMap<String, String>();
+      params.put("client_id", getAppId());
+      params.put("client_secret", getAppSecret());
+      params.put("redirect_uri", redirect_uri);
+      params.put("code", code);
+      access_token_response = _oauthRequest(
+          getUrl("graph", "/oauth/access_token"), params);
+    } catch (FacebookApiException e)
+    {
+      // most likely that user very recently revoked authorization.
+      // In any event, we don't have an access token, so say so.
+      return null;
+    }
+
+    if (access_token_response.length() == 0)
+    {
+      return null;
+    }
+
+    HashMap<String, String> response_params = parse_str(access_token_response);
+    if (!response_params.containsKey("access_token"))
+    {
+      return null;
+    }
+
+    return response_params.get("access_token");
   }
 
   /**
@@ -857,10 +932,14 @@ abstract public class BaseFacebook
    */
   protected boolean isVideoPost(String path, String method)
   {
-    /*
-     * TODO Translate if ($method == 'POST' &&
-     * preg_match("/^(\\/)(.+)(\\/)(videos)$/", $path)) { return true; }
-     */
+    Pattern pattern = Pattern.compile("/^(\\/)(.+)(\\/)(videos)$/");
+    Matcher matcher = pattern.matcher(path);
+
+    if (method == "POST" && matcher.matches())
+    {
+      return true;
+    }
+
     return false;
   }
 
@@ -889,7 +968,8 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  protected JSONObject _graph(String path, String method) throws FacebookApiException
+  protected JSONObject _graph(String path, String method)
+      throws FacebookApiException
   {
     return _graph(path, method, new HashMap<String, String>());
   }
@@ -905,7 +985,8 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  protected JSONObject _graph(String path, HashMap<String, String> params) throws FacebookApiException
+  protected JSONObject _graph(String path, HashMap<String, String> params)
+      throws FacebookApiException
   {
     return _graph(path, "GET", new HashMap<String, String>());
   }
@@ -967,7 +1048,8 @@ abstract public class BaseFacebook
    * @throws FacebookApiException
    *           the facebook api exception
    */
-  protected String _oauthRequest(String url, HashMap<String, String> params) throws FacebookApiException
+  protected String _oauthRequest(String url, HashMap<String, String> params)
+      throws FacebookApiException
   {
 
     if (!params.containsKey("access_token"))
@@ -982,13 +1064,11 @@ abstract public class BaseFacebook
    * Makes an HTTP request. This method can be overridden by subclasses if
    * developers want to do fancier things or use something other than curl to
    * make the request.
-   * 
-   * @param url
-   *          the url
-   * @param params
-   *          the params
+   *
+   * @param url the url
+   * @param params the params
    * @return string The response text
-   * @throws FacebookApiException
+   * @throws FacebookApiException the facebook api exception
    */
   protected String makeRequest(String url, HashMap<String, String> params)
       throws FacebookApiException
@@ -1009,7 +1089,7 @@ abstract public class BaseFacebook
       {
         exception.put("error_code", 28);
         JSONObject error = new JSONObject();
-        if(e.getMessage() != null)
+        if (e.getMessage() != null)
           error.put("message", e.getMessage());
         else
           error.put("message", "Unknown error");
@@ -1038,11 +1118,10 @@ abstract public class BaseFacebook
       String[] signedParts = signed_request.split("\\.");
       if (signedParts.length != 2)
         return null;
-      String encoded_sig = signedParts[0];
+      String sig = signedParts[0];
       String payload = signedParts[1];
-      // decode the data 
+      // decode the data
       JSONObject data = new JSONObject(base64UrlDecode(payload));
-      String sig = base64UrlDecode(encoded_sig);
 
       if (!"HMAC-SHA256".equals(data.getString("algorithm").toUpperCase()))
       {
@@ -1051,8 +1130,8 @@ abstract public class BaseFacebook
       }
 
       // check sig
-      byte[] expected_sig = computeSignature(payload, getAppSecret());
-      if (!compareSignatures(sig, expected_sig))
+      String expected_sig = computeSignature(payload, getAppSecret());
+      if (!sig.equals(expected_sig))
       {
         errorLog("Bad Signed JSON signature!");
         return null;
@@ -1065,31 +1144,7 @@ abstract public class BaseFacebook
       return null;
     }
   }
-  
-  /**
-   * Compare signatures.
-   * 
-   * @param sig1
-   *          the sig1
-   * @param sig2
-   *          the sig2
-   * @return true, if successful
-   */
-  private boolean compareSignatures(String sig1, byte[] sig2)
-  {
-    if(sig1.length() != sig2.length)
-      return false;
-    for(int i = 0; i < sig2.length; i++)
-    {
-      int translateByte = sig2[i];
-      if (translateByte < 0)
-        translateByte += 65536;
-      if(Integer.valueOf(sig1.charAt(i)) != translateByte)
-        return false;
-    }
-    return true;
-  }
-  
+
   /**
    * Compute signature.
    * 
@@ -1099,32 +1154,31 @@ abstract public class BaseFacebook
    *          the key string
    * @return the byte[]
    */
-  private static byte[] computeSignature(String baseString, String keyString)
+  private static String computeSignature(String baseString, String keyString)
   {
 
     try
     {
-      
+
       SecretKeySpec secretKey = null;
 
       byte[] keyBytes = keyString.getBytes();
       secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
 
-      Mac mac = Mac.getInstance("HmacSHA256");      
+      Mac mac = Mac.getInstance("HmacSHA256");
 
       mac.init(secretKey);
 
       byte[] text = baseString.getBytes();
 
-      return mac.doFinal(text);
-      
+      return new String(Base64.encodeBase64(mac.doFinal(text))).trim().replace("=", "").replace("+", "-").replace("/", "_");
+
     } catch (Exception e)
     {
       e.printStackTrace();
       return null;
     }
   }
-
 
   /**
    * Build the URL for api given parameters.
@@ -1329,7 +1383,7 @@ abstract public class BaseFacebook
           queryBuilder.append(param);
           queryBuilder.append("&");
         }
-        queryBuilder.deleteCharAt(queryBuilder.length()-1);
+        queryBuilder.deleteCharAt(queryBuilder.length() - 1);
         query += queryBuilder.toString();
       }
     }
@@ -1341,8 +1395,9 @@ abstract public class BaseFacebook
       port = -1;
     }
 
-    return req.getProtocol() + "://" + req.getServerName() + (port != -1 ? ":"+port : "")
-        + req.getRequestURI() + (query != null ?query:"");
+    return req.getProtocol() + "://" + req.getServerName()
+        + (port != -1 ? ":" + port : "") + req.getRequestURI()
+        + (query != null ? query : "");
   }
 
   /**
@@ -1428,26 +1483,38 @@ abstract public class BaseFacebook
    */
   public void destroySession()
   {
-    /*
-     * TODO Translate accessToken = null; signedRequest = null; user = null;
-     * clearAllPersistentData();
-     * 
-     * // Javascript sets a cookie that will be used in getSignedRequest that we
-     * // need to clear if we can $cookie_name = getSignedRequestCookieName();
-     * if (array_key_exists($cookie_name, $_COOKIE)) {
-     * unset($_COOKIE[$cookie_name]); if (!headers_sent()) { // The base domain
-     * is stored in the metadata cookie if not we fallback // to the current
-     * hostname $base_domain = '.'. $_SERVER['HTTP_HOST'];
-     * 
-     * $metadata = getMetadataCookie(); if (array_key_exists('base_domain',
-     * $metadata) && !empty($metadata['base_domain'])) { $base_domain =
-     * $metadata['base_domain']; }
-     * 
-     * setcookie($cookie_name, '', 0, '/', $base_domain); } else {
-     * self::errorLog( 'There exists a cookie that we wanted to clear that we
-     * couldn\'t '. 'clear because headers was already sent. Make sure to do the
-     * first '. 'API call before outputing anything' ); } }
-     */
+    accessToken = null;
+    signedRequest = null;
+    user = 0;
+    clearAllPersistentData();
+
+    // Javascript sets a cookie that will be used in getSignedRequest that we
+    // need to clear if we can
+    String cookie_name = getSignedRequestCookieName();
+    String base_domain;
+    if (getCookie(cookie_name) != null)
+    {
+      Cookie remove = new Cookie(cookie_name, "");
+      remove.setMaxAge(0);
+      resp.addCookie(remove);
+
+      // The base domain is stored in the metadata cookie if not we fallback
+      // to the current hostname
+      base_domain = req.getServerName();
+
+      HashMap<String, String> metadata = getMetadataCookie();
+      if (metadata.containsKey("base_domain")
+          && metadata.get("base_domain") != null
+          && metadata.get("base_domain") != "")
+      {
+        base_domain = metadata.get("base_domain");
+        Cookie setCookie = new Cookie(cookie_name, "");
+        setCookie.setMaxAge(0);
+        setCookie.setPath("/");
+        setCookie.setDomain(base_domain);
+      }
+    }
+
   }
 
   /**
@@ -1455,25 +1522,46 @@ abstract public class BaseFacebook
    * 
    * @return an array mapping key to value
    */
-  protected String getMetadataCookie()
+  protected HashMap<String, String> getMetadataCookie()
   {
-    /*
-     * TODO Translate $cookie_name = getMetadataCookieName(); if
-     * (!array_key_exists($cookie_name, $_COOKIE)) { return array(); }
-     * 
-     * // The cookie value can be wrapped in "-characters so remove them
-     * $cookie_value = trim($_COOKIE[$cookie_name], '"');
-     * 
-     * if (empty($cookie_value)) { return array(); }
-     * 
-     * $parts = explode('&', $cookie_value); $metadata = array(); foreach
-     * ($parts as $part) { $pair = explode('=', $part, 2); if (!empty($pair[0]))
-     * { $metadata[urldecode($pair[0])] = (count($pair) > 1) ?
-     * urldecode($pair[1]) : ''; } }
-     * 
-     * return $metadata;
-     */
-    return null;
+
+    String cookie_name = getMetadataCookieName();
+    if (getCookie(cookie_name) == null)
+    {
+      return new HashMap<String, String>();
+    }
+
+    // The cookie value can be wrapped in "-characters so remove them
+    // TODO Test this translattion of trim
+    String cookie_value = getCookie(cookie_name).replaceAll("^\"", "")
+        .replaceAll("\"$", "");
+
+    if (cookie_value.length() == 0)
+    {
+      return new HashMap<String, String>();
+    }
+
+    String[] parts = cookie_value.split("&");
+    HashMap<String, String> metadata = new HashMap<String, String>();
+    for (String part : parts)
+    {
+      String[] pair = part.split("=");
+      if (pair.length > 0)
+      {
+        try
+        {
+          metadata
+              .put(URLDecoder.decode(pair[0], "ISO-8859-1"),
+                  (pair.length > 1) ? URLDecoder.decode(pair[1], "ISO-8859-1")
+                      : "");
+        } catch (UnsupportedEncodingException e)
+        {
+          e.printStackTrace();
+        }
+      }
+    }
+
+    return metadata;
   }
 
   /**
@@ -1511,6 +1599,32 @@ abstract public class BaseFacebook
   protected String getPersistentData(String key)
   {
     return getPersistentData(key, null);
+  }
+
+  /**
+   * Parse_str.
+   * 
+   * @param query
+   *          the query
+   * @return the hash map
+   */
+  public static HashMap<String, String> parse_str(String query)
+  {
+    try
+    {
+      query = URLDecoder.decode(query, "ISO-8859-1");
+    } catch (UnsupportedEncodingException e)
+    {
+      e.printStackTrace();
+    }
+    HashMap<String, String> params = new HashMap<String, String>();
+    for (String param : query.split("&"))
+    {
+      String[] keyVal = param.split("=");
+      String value = keyVal.length > 1 ? keyVal[1] : "";
+      params.put(keyVal[0], value);
+    }
+    return params;
   }
 
   /**

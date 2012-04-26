@@ -1,6 +1,11 @@
+/*
+ * File:         TransientFacebook.java
+ * Author:       Robert Bittle <guywithnose@gmail.com>
+ */
 package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
@@ -15,15 +20,15 @@ public class TransientFacebook extends BaseFacebook
 
   /**
    * Instantiates a new transient facebook.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public TransientFacebook(JSONObject config, HttpServletRequest Req)
+  public TransientFacebook(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**

@@ -1,3 +1,6 @@
+/*
+ * File: facebookTest.java Author: Robert Bittle <guywithnose@gmail.com>
+ */
 package facebook.tests;
 
 import static org.junit.Assert.*;
@@ -23,12 +26,17 @@ import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.FBGetSignedRequestCookieFacebook;
 import facebook.tests.helpers.FBPublic;
 import facebook.tests.helpers.HttpServletRequestMock;
+import facebook.tests.helpers.HttpServletResponseMock;
 import facebook.tests.helpers.TransientFacebook;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class facebookTest.
  */
-@SuppressWarnings({"unused","static-method"})
+@SuppressWarnings(
+{
+    "unused", "static-method"
+})
 public class facebookTest
 {
 
@@ -65,7 +73,8 @@ public class facebookTest
   @Test
   public void testConstructor()
   {
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     assertEquals("Expect the App ID to be set.", facebook.getAppId(), APP_ID);
     assertEquals("Expect the API secret to be set.", facebook.getAppSecret(),
         SECRET);
@@ -84,7 +93,8 @@ public class facebookTest
     {
       e.printStackTrace();
     }
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     assertEquals("Expect the App ID to be set.", facebook.getAppId(), APP_ID);
     assertEquals("Expect the API secret to be set.", facebook.getAppSecret(),
         SECRET);
@@ -98,7 +108,8 @@ public class facebookTest
   @Test
   public void testSetAppId()
   {
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     facebook.setAppId("dummy");
     assertEquals("Expect the App ID to be dummy.", facebook.getAppId(), "dummy");
   }
@@ -109,7 +120,8 @@ public class facebookTest
   @Test
   public void testSetAPPSecret()
   {
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     facebook.setAppSecret("dummy");
     assertEquals("Expect the API secret to be dummy.", facebook.getAppSecret(),
         "dummy");
@@ -121,7 +133,8 @@ public class facebookTest
   @Test
   public void testSetAccessToken()
   {
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     facebook.setAccessToken("saltydog");
     assertEquals("Expect installed access token to remain \"saltydog\"",
         facebook.getAccessToken(), "saltydog");
@@ -134,7 +147,8 @@ public class facebookTest
   @Test
   public void testSetFileUploadSupport()
   {
-    BaseFacebook facebook = new TransientFacebook(config, new HttpServletRequestMock());
+    BaseFacebook facebook = new TransientFacebook(config,
+        new HttpServletRequestMock(), new HttpServletResponseMock());
     assertFalse("Expect file upload support to be off.",
         facebook.getFileUploadSupport());
     facebook.setFileUploadSupport(true);
@@ -150,7 +164,8 @@ public class facebookTest
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php?one=one&two=two&three=three");
-    FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config, req);
+    FBGetCurrentURLFacebook facebook = new FBGetCurrentURLFacebook(config, req,
+        new HttpServletResponseMock());
 
     String current_url = facebook.publicGetCurrentUrl();
     assertEquals("getCurrentUrl void is changing the current URL",
@@ -183,7 +198,7 @@ public class facebookTest
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php");
-    Facebook facebook = new Facebook(config, req);
+    Facebook facebook = new Facebook(config, req, new HttpServletResponseMock());
 
     HashMap<String, String> login_url = parse_url(facebook.getLoginUrl());
     assertEquals("https", login_url.get("scheme"));
@@ -197,7 +212,8 @@ public class facebookTest
       }
     };
 
-    HashMap<String, String> query_map = parse_str(login_url.get("query"));
+    HashMap<String, String> query_map = BaseFacebook.parse_str(login_url
+        .get("query"));
     assertIsSubset(expected_login_params, query_map);
     // we don't know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
@@ -212,7 +228,7 @@ public class facebookTest
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     req.setRequestString("http://www.test.com/unit-tests.php");
-    Facebook facebook = new Facebook(config, req);
+    Facebook facebook = new Facebook(config, req, new HttpServletResponseMock());
 
     HashMap<String, String> extra_params = new HashMap<String, String>()
     {
@@ -230,7 +246,8 @@ public class facebookTest
     expected_login_params.put("client_id", APP_ID);
     expected_login_params.put("redirect_uri",
         "http://www.test.com/unit-tests.php");
-    HashMap<String, String> query_map = parse_str(login_url.get("query"));
+    HashMap<String, String> query_map = BaseFacebook.parse_str(login_url
+        .get("query"));
     assertIsSubset(expected_login_params, query_map);
     // we don't know what the state is, but we know it"s an md5 and should
     // be 32 characters long.
@@ -244,7 +261,7 @@ public class facebookTest
   public void testGetCode_ValidCSRFState()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    FBCode facebook = new FBCode(config, req);
+    FBCode facebook = new FBCode(config, req, new HttpServletResponseMock());
 
     facebook.setCSRFStateToken();
     String code = TransientFacebook.md5();
@@ -261,7 +278,7 @@ public class facebookTest
   public void testGetCode_InvalidCSRFState()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    FBCode facebook = new FBCode(config, req);
+    FBCode facebook = new FBCode(config, req, new HttpServletResponseMock());
 
     facebook.setCSRFStateToken();
     req.setParameter("code", TransientFacebook.md5());
@@ -279,7 +296,7 @@ public class facebookTest
   public void testGetCode_MissingCSRFState()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    FBCode facebook = new FBCode(config, req);
+    FBCode facebook = new FBCode(config, req, new HttpServletResponseMock());
 
     facebook.setCSRFStateToken();
     req.setParameter("code", TransientFacebook.md5());
@@ -296,7 +313,8 @@ public class facebookTest
   public void testGetUser_SignedRequest()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     req.setParameter("signed_request", kValidSignedRequest);
     assertEquals("Failed to get user ID from a valid signed request.",
@@ -311,7 +329,7 @@ public class facebookTest
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     FBGetSignedRequestCookieFacebook facebook = new FBGetSignedRequestCookieFacebook(
-        config, req);
+        config, req, new HttpServletResponseMock());
 
     req.addCookie(facebook.publicGetSignedRequestCookieName(),
         kValidSignedRequest);
@@ -328,7 +346,7 @@ public class facebookTest
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
     FBGetSignedRequestCookieFacebook facebook = new FBGetSignedRequestCookieFacebook(
-        config, req);
+        config, req, new HttpServletResponseMock());
 
     req.addCookie(facebook.publicGetSignedRequestCookieName(),
         kSignedRequestWithBogusSignature);
@@ -343,7 +361,8 @@ public class facebookTest
   public void testNonUserAccessToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    FBAccessToken facebook = new FBAccessToken(config, req);
+    FBAccessToken facebook = new FBAccessToken(config, req,
+        new HttpServletResponseMock());
 
     // no cookies, and no request params, so no user or code,
     // so no user access token (even with cookie support)
@@ -364,7 +383,8 @@ public class facebookTest
       FacebookApiException
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     JSONObject response = facebook.api(new HashMap<String, String>()
     {
       {
@@ -385,7 +405,8 @@ public class facebookTest
   public void testAPI_BogusAccessToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     facebook.setAccessToken("this-is-not-really-an-access-token");
     // if we don't set an access token and there"s no way to
@@ -427,10 +448,12 @@ public class facebookTest
    *           the facebook api exception
    */
   @Test
-  public void testAPIGraph_PublicData() throws JSONException, FacebookApiException
+  public void testAPIGraph_PublicData() throws JSONException,
+      FacebookApiException
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     JSONObject response = facebook.api("/jerry");
     assertEquals("should get expected id.", response.get("id"), "214707");
@@ -443,7 +466,8 @@ public class facebookTest
   public void testGraphAPI_BogusAccessToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     facebook.setAccessToken("this-is-not-really-an-access-token");
     try
     {
@@ -464,7 +488,8 @@ public class facebookTest
   public void testGraphAPI_ExpiredAccessToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     facebook.setAccessToken(kExpiredAccessToken);
     try
@@ -487,7 +512,8 @@ public class facebookTest
   public void testGraphAPIMethod()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     try
     {
@@ -515,7 +541,8 @@ public class facebookTest
     config.put("appId", MIGRATED_APP_ID);
     config.put("secret", MIGRATED_SECRET);
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     try
     {
@@ -549,7 +576,8 @@ public class facebookTest
     config.put("appId", MIGRATED_APP_ID);
     config.put("secret", MIGRATED_SECRET);
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     try
     {
@@ -575,7 +603,8 @@ public class facebookTest
   public void testCurlFailure()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     FacebookApiException exception = null;
     try
@@ -597,7 +626,7 @@ public class facebookTest
       assertEquals("CurlException", exception.getType());
     }
   }
-      
+
   /**
    * Tests the graphAPI method using only params.
    * 
@@ -608,7 +637,8 @@ public class facebookTest
   public void testGraphAPI_OnlyParams() throws FacebookApiException
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
 
     JSONObject response = facebook.api("/jerry");
     assertTrue("User ID should be public.", response.has("id"));
@@ -631,12 +661,14 @@ public class facebookTest
   public void testLoginURL_Defaults()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples");
     String encodedUrl = "";
     try
     {
-      encodedUrl = URLEncoder.encode("http://fbrell.com/examples", "ISO-8859-1");
+      encodedUrl = URLEncoder
+          .encode("http://fbrell.com/examples", "ISO-8859-1");
     } catch (UnsupportedEncodingException e)
     {
       e.printStackTrace();
@@ -652,7 +684,8 @@ public class facebookTest
   public void testLoginURL_DefaultsDropStateQueryParam()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples?state=xx42xx");
     String expectEncodedUrl = "";
     try
@@ -676,7 +709,8 @@ public class facebookTest
   public void testLoginURL_DefaultsDropCodeQueryParam()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples?code=xx42xx");
     String expectEncodedUrl = "";
     try
@@ -701,7 +735,8 @@ public class facebookTest
   public void testLoginURL_DefaultsDropSignedRequestParamButNotOthers()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples?signed_request=xx42xx&do_not_drop=xx43xx");
     String expectEncodedUrl = "";
     try
@@ -727,7 +762,8 @@ public class facebookTest
   public void testLoginURL_CustomNext()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples");
     String next = "http://fbrell.com/custom";
     String loginUrl = facebook.getLoginUrl(new HashMap<String, String>()
@@ -761,7 +797,8 @@ public class facebookTest
   public void testLogoutURL_Defaults()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples");
     String encodedUrl = "";
     try
@@ -783,7 +820,8 @@ public class facebookTest
   public void testLoginStatusURL_Defaults()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples");
     String encodedUrl = "";
     try
@@ -805,7 +843,8 @@ public class facebookTest
   public void testLoginStatusURL_Custom()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com/examples");
     String encodedUrl1 = "";
     String encodedUrl2 = "";
@@ -839,7 +878,8 @@ public class facebookTest
   public void testGetLoginUrl_NonDefaultPort()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("http://fbrell.com:8080/examples");
     String encodedUrl = "";
     try
@@ -861,7 +901,8 @@ public class facebookTest
   public void testGetLoginUrl_SecureCurrentUrl()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("https://fbrell.com/examples");
     String encodedUrl = "";
     try
@@ -884,7 +925,8 @@ public class facebookTest
   public void testGetLoginUrl_SecureCurrentUrlWithNonDefaultPort()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     req.setRequestString("https://fbrell.com:8080/examples");
     String encodedUrl = "";
     try
@@ -906,7 +948,8 @@ public class facebookTest
   public void testAppSecretCall()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    TransientFacebook facebook = new TransientFacebook(config, req);
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
     try
     {
       JSONObject response = facebook.api("/" + APP_ID + "/insights");
@@ -944,7 +987,7 @@ public class facebookTest
   public void testSignedToken()
   {
     HttpServletRequestMock req = new HttpServletRequestMock();
-    FBPublic facebook = new FBPublic(config, req);
+    FBPublic facebook = new FBPublic(config, req, new HttpServletResponseMock());
     JSONObject payload = facebook.publicParseSignedRequest(kValidSignedRequest);
     assertNotNull("Expected token to parse", payload);
     assertNull(facebook.getSignedRequest());
@@ -952,244 +995,207 @@ public class facebookTest
     assertEquals(facebook.getSignedRequest().toString(), payload.toString());
   }
 
-      /**
-       * Tests the signedToken method using non tossed signedtoken.
-       */
-      @Test
-      public void testSignedToken_NonTossedSignedtoken() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBPublic(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET
-        ));
-        $payload = $facebook->publicParseSignedRequest(
-          self::$kNonTosedSignedRequest);
-        assertNotNull($payload, "Expected token to parse");
-        assertNull($facebook->getSignedRequest());
-        $_REQUEST["signed_request"] = self::$kNonTosedSignedRequest;
-        assertEquals($facebook->getSignedRequest(),
-          array("algorithm" => "HMAC-SHA256"));
-          */
-      }
-      
-      /**
-       * Tests the bundledCACert method.
-       */
-      @Test
-      public void testBundledCACert() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new TransientFacebook(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET
-        ));
+  /**
+   * Tests the signedToken method using non tossed signedtoken.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testSignedToken_NonTossedSignedtoken() throws JSONException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBPublic facebook = new FBPublic(config, req, new HttpServletResponseMock());
 
-          // use the bundled cert from the start
-        Facebook::$CURL_OPTS[CURLOPT_CAINFO] =
-          dirname(__FILE__) . "/../src/fb_ca_chain_bundle.crt";
-        $response = $facebook->api("/naitik");
+    JSONObject payload = facebook
+        .publicParseSignedRequest(kNonTosedSignedRequest);
+    assertNotNull("Expected token to parse", payload);
+    assertNull(facebook.getSignedRequest());
+    req.setParameter("signed_request", kNonTosedSignedRequest);
+    assertEquals(facebook.getSignedRequest().get("algorithm"), "HMAC-SHA256");
+  }
 
-        unset(Facebook::$CURL_OPTS[CURLOPT_CAINFO]);
-        assertEquals(
-          $response["id"], "5526183", "should get expected id.");
-          */
-      }
-      
-      /**
-       * Tests the videoUpload method.
-       */
-      @Test
-      public void testVideoUpload() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new FBRecordURL(array(
-          "appId"  => self::APP_ID,
-          "secret" => self::SECRET
-        ));
+  /**
+   * Tests the bundledCACert method.
+   */
+  @Test
+  public void testBundledCACert()
+  {
+    fail("Not implemented.");
+    /*
+     * TODO Translate $facebook = new TransientFacebook(array( "appId" =>
+     * self::APP_ID, "secret" => self::SECRET ));
+     * 
+     * // use the bundled cert from the start
+     * Facebook::$CURL_OPTS[CURLOPT_CAINFO] = dirname(__FILE__) .
+     * "/../src/fb_ca_chain_bundle.crt"; $response = $facebook->api("/naitik");
+     * 
+     * unset(Facebook::$CURL_OPTS[CURLOPT_CAINFO]); assertEquals(
+     * $response["id"], "5526183", "should get expected id.");
+     */
+  }
 
-        $facebook->api(array("method" => "video.upload"));
-        assertContains("//api-video.", $facebook->getRequestedURL(),
-                              "video.upload should go against api-video");
-                              */
-      }
-      
-      /**
-       * Tests the getUserAndAccessToken method using session.
-       */
-      @Test
-      public void testGetUserAndAccessToken_Session() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new PersistentFBPublic(array(
-                                             "appId"  => self::APP_ID,
-                                             "secret" => self::SECRET
-                                           ));
+  /**
+   * Tests the videoUpload method.
+   */
+  @Test
+  public void testVideoUpload()
+  {
+    fail("Not implemented.");
+    /*
+     * TODO Translate $facebook = new FBRecordURL(array( "appId" =>
+     * self::APP_ID, "secret" => self::SECRET ));
+     * 
+     * $facebook->api(array("method" => "video.upload"));
+     * assertContains("//api-video.", $facebook->getRequestedURL(),
+     * "video.upload should go against api-video");
+     */
+  }
 
-        $facebook->publicSetPersistentData("access_token",
-                                           self::$kExpiredAccessToken);
-        $facebook->publicSetPersistentData("user_id", 12345);
-        assertEquals(self::$kExpiredAccessToken,
-                            $facebook->getAccessToken(),
-                            "Get access token from persistent store.");
-        assertEquals("12345",
-                            $facebook->getUser(),
-                            "Get user id from persistent store.");
-                            */
-      }
-      
-      /**
-       * Tests the getUserAndAccessToken method using signed request not
-       * session.
-       */
-      @Test
-      public void testGetUserAndAccessToken_SignedRequestNotSession() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new PersistentFBPublic(array(
-                                             "appId"  => self::APP_ID,
-                                             "secret" => self::SECRET
-                                           ));
+  /**
+   * Tests the getUserAndAccessToken method using session.
+   */
+  @Test
+  public void testGetUserAndAccessToken_Session()
+  {
+    fail("Not implemented.");
+    /*
+     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
+     * self::APP_ID, "secret" => self::SECRET ));
+     * 
+     * $facebook->publicSetPersistentData("access_token",
+     * self::$kExpiredAccessToken);
+     * $facebook->publicSetPersistentData("user_id", 12345);
+     * assertEquals(self::$kExpiredAccessToken, $facebook->getAccessToken(),
+     * "Get access token from persistent store."); assertEquals("12345",
+     * $facebook->getUser(), "Get user id from persistent store.");
+     */
+  }
 
-        $_REQUEST["signed_request"] = self::$kValidSignedRequest;
-        $facebook->publicSetPersistentData("user_id", 41572);
-        $facebook->publicSetPersistentData("access_token",
-                                           self::$kExpiredAccessToken);
-        assertNotEquals("41572", $facebook->getUser(),
-                               "Got user from session instead of signed request.");
-        assertEquals("1677846385", $facebook->getUser(),
-                            "Failed to get correct user ID from signed request.");
-        assertNotEquals(
-          self::$kExpiredAccessToken,
-          $facebook->getAccessToken(),
-          "Got access token from session instead of signed request.");
-        assertNotEmpty(
-          $facebook->getAccessToken(),
-          "Failed to extract an access token from the signed request.");
-          */
-      }
-      
-      /**
-       * Tests the getUser method using no code or signed request or session.
-       */
-      @Test
-      public void testGetUser_NoCodeOrSignedRequestOrSession() {
-        fail("Not implemented.");
-        /* TODO Translate
-        $facebook = new PersistentFBPublic(array(
-                                             "appId"  => self::APP_ID,
-                                             "secret" => self::SECRET
-                                           ));
+  /**
+   * Tests the getUserAndAccessToken method using signed request not session.
+   */
+  @Test
+  public void testGetUserAndAccessToken_SignedRequestNotSession()
+  {
+    fail("Not implemented.");
+    /*
+     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
+     * self::APP_ID, "secret" => self::SECRET ));
+     * 
+     * $_REQUEST["signed_request"] = self::$kValidSignedRequest;
+     * $facebook->publicSetPersistentData("user_id", 41572);
+     * $facebook->publicSetPersistentData("access_token",
+     * self::$kExpiredAccessToken); assertNotEquals("41572",
+     * $facebook->getUser(),
+     * "Got user from session instead of signed request.");
+     * assertEquals("1677846385", $facebook->getUser(),
+     * "Failed to get correct user ID from signed request."); assertNotEquals(
+     * self::$kExpiredAccessToken, $facebook->getAccessToken(),
+     * "Got access token from session instead of signed request.");
+     * assertNotEmpty( $facebook->getAccessToken(),
+     * "Failed to extract an access token from the signed request.");
+     */
+  }
 
-        // deliberately leave $_REQUEST and _$SESSION empty
-        assertEmpty($_REQUEST,
-                           "GET, POST, and COOKIE params exist even though ".
-                           "they should.  Test cannot succeed unless all of ".
-                           "$_REQUEST is empty.");
-        assertEmpty($_SESSION,
-                           "Session is carrying state and should not be.");
-        assertEmpty($facebook->getUser(),
-                           "Got a user id, even without a signed request, ".
-                           "access token, or session variable.");
-        assertEmpty($_SESSION,
-                           "Session superglobal incorrectly populated by getUser.");
-                           */
-      }
+  /**
+   * Tests the getUser method using no code or signed request or session.
+   */
+  @Test
+  public void testGetUser_NoCodeOrSignedRequestOrSession()
+  {
+    fail("Not implemented.");
+    /*
+     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
+     * self::APP_ID, "secret" => self::SECRET ));
+     * 
+     * // deliberately leave $_REQUEST and _$SESSION empty
+     * assertEmpty($_REQUEST, "GET, POST, and COOKIE params exist even though ".
+     * "they should.  Test cannot succeed unless all of ".
+     * "$_REQUEST is empty."); assertEmpty($_SESSION,
+     * "Session is carrying state and should not be.");
+     * assertEmpty($facebook->getUser(),
+     * "Got a user id, even without a signed request, ".
+     * "access token, or session variable."); assertEmpty($_SESSION,
+     * "Session superglobal incorrectly populated by getUser.");
+     */
+  }
 
-      /**
-       * Sets up.
-       */
-      @Before
-      public void setUp() {
-        BaseFacebook.timeout = 10000;
-        try
-        {
-          config = new JSONObject("{\"appId\": \""+APP_ID+"\",\"secret\": \""+SECRET+"\"}");
-        } catch (JSONException e)
-        {
-          e.printStackTrace();
-        }
-      }
+  /**
+   * Sets up.
+   */
+  @Before
+  public void setUp()
+  {
+    BaseFacebook.timeout = 10000;
+    try
+    {
+      config = new JSONObject("{\"appId\": \"" + APP_ID + "\",\"secret\": \""
+          + SECRET + "\"}");
+    } catch (JSONException e)
+    {
+      e.printStackTrace();
+    }
+  }
 
-      /**
-       * Checks that the correct args are a subset of the returned obj.
-       * 
-       * @param correct
-       *          the correct
-       * @param actual
-       *          the actual
-       */
-      protected void assertIsSubset(HashMap<String, String> correct, HashMap<String, String> actual) {
-        assertIsSubset(correct, actual, "");
-      }
-      
-      /**
-       * Checks that the correct args are a subset of the returned obj.
-       * 
-       * @param correct
-       *          the correct
-       * @param actual
-       *          the actual
-       * @param msg
-       *          the msg
-       */
-      protected void assertIsSubset(HashMap<String, String> correct, HashMap<String, String> actual, String msg) {
-        for(String key : correct.keySet()) {
-          String actual_value = actual.get(key);
-          String newMsg = msg.length() != 0 ? msg + " " : "" + "Key: " + key;
-          assertEquals(newMsg, correct.get(key), actual_value);
-        }
-      }
-      
-      /**
-       * Parse_url.
-       * 
-       * @param url
-       *          the url
-       * @return the hash map
-       */
-      protected HashMap<String,String> parse_url(String url)
-      {
-        HashMap<String, String> urlParts = new HashMap<String, String>();
-        int scheme = url.indexOf("://") + 3;
-        int port = url.indexOf(":", scheme);
-        urlParts.put("scheme", url.substring(0, scheme-3));
-        if(port == -1 || port > url.indexOf("/", scheme))
-          port = url.indexOf("/", scheme);
-        else
-          urlParts.put("port", url.substring(port, url.indexOf("/", port)));
-        urlParts.put("host", url.substring(scheme, port));
-        int path = url.indexOf("/", port);
-        urlParts.put("path", url.substring(path, url.indexOf("?", path)));
-        if(url.indexOf("?") != -1)
-          urlParts.put("query", url.substring(url.indexOf("?")+1));
-        return urlParts;
-      }
-      
-      /**
-       * Parse_str.
-       * 
-       * @param query
-       *          the query
-       * @return the hash map
-       */
-      protected HashMap<String, String> parse_str(String query)
-      {
-        try
-        {
-          query = URLDecoder.decode(query, "ISO-8859-1");
-        } catch (UnsupportedEncodingException e)
-        {
-          e.printStackTrace();
-        }
-        HashMap<String, String> params = new HashMap<String, String>();
-        for(String param : query.split("&"))
-        {
-          String[] keyVal = param.split("=");
-          String value = keyVal.length > 1 ? keyVal[1] : "";
-          params.put(keyVal[0], value);
-        }
-        return params;
-      }
-      
+  /**
+   * Checks that the correct args are a subset of the returned obj.
+   * 
+   * @param correct
+   *          the correct
+   * @param actual
+   *          the actual
+   */
+  protected void assertIsSubset(HashMap<String, String> correct,
+      HashMap<String, String> actual)
+  {
+    assertIsSubset(correct, actual, "");
+  }
+
+  /**
+   * Checks that the correct args are a subset of the returned obj.
+   * 
+   * @param correct
+   *          the correct
+   * @param actual
+   *          the actual
+   * @param msg
+   *          the msg
+   */
+  protected void assertIsSubset(HashMap<String, String> correct,
+      HashMap<String, String> actual, String msg)
+  {
+    for (String key : correct.keySet())
+    {
+      String actual_value = actual.get(key);
+      String newMsg = msg.length() != 0 ? msg + " " : "" + "Key: " + key;
+      assertEquals(newMsg, correct.get(key), actual_value);
+    }
+  }
+
+  /**
+   * Parse_url.
+   * 
+   * @param url
+   *          the url
+   * @return the hash map
+   */
+  protected HashMap<String, String> parse_url(String url)
+  {
+    HashMap<String, String> urlParts = new HashMap<String, String>();
+    int scheme = url.indexOf("://") + 3;
+    int port = url.indexOf(":", scheme);
+    urlParts.put("scheme", url.substring(0, scheme - 3));
+    if (port == -1 || port > url.indexOf("/", scheme))
+      port = url.indexOf("/", scheme);
+    else
+      urlParts.put("port", url.substring(port, url.indexOf("/", port)));
+    urlParts.put("host", url.substring(scheme, port));
+    int path = url.indexOf("/", port);
+    urlParts.put("path", url.substring(path, url.indexOf("?", path)));
+    if (url.indexOf("?") != -1)
+      urlParts.put("query", url.substring(url.indexOf("?") + 1));
+    return urlParts;
+  }
+
 }

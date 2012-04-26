@@ -5,6 +5,7 @@
 package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 
@@ -16,15 +17,15 @@ public class FBGetCurrentURLFacebook extends TransientFacebook
 
   /**
    * Instantiates a new fB get current url facebook.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public FBGetCurrentURLFacebook(JSONObject config, HttpServletRequest Req)
+  public FBGetCurrentURLFacebook(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**

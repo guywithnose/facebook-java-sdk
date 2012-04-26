@@ -5,6 +5,7 @@
 package facebook.tests.helpers;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 import facebook.Facebook;
@@ -18,15 +19,15 @@ public class FBCode extends Facebook {
 
   /**
    * Instantiates a new fB code.
-   * 
-   * @param config
-   *          the config
-   * @param Req
-   *          the req
+   *
+   * @param config the config
+   * @param Req the req
+   * @param Resp the resp
    */
-  public FBCode(JSONObject config, HttpServletRequest Req)
+  public FBCode(JSONObject config, HttpServletRequest Req,
+      HttpServletResponse Resp)
   {
-    super(config, Req);
+    super(config, Req, Resp);
   }
 
   /**
