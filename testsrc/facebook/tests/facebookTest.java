@@ -25,8 +25,10 @@ import facebook.tests.helpers.FBCode;
 import facebook.tests.helpers.FBGetCurrentURLFacebook;
 import facebook.tests.helpers.FBGetSignedRequestCookieFacebook;
 import facebook.tests.helpers.FBPublic;
+import facebook.tests.helpers.FBRecordURL;
 import facebook.tests.helpers.HttpServletRequestMock;
 import facebook.tests.helpers.HttpServletResponseMock;
+import facebook.tests.helpers.PersistentFBPublic;
 import facebook.tests.helpers.TransientFacebook;
 
 // TODO: Auto-generated Javadoc
@@ -1037,19 +1039,24 @@ public class facebookTest
 
   /**
    * Tests the videoUpload method.
+   * 
+   * @throws FacebookApiException
+   *           the facebook api exception
    */
   @Test
-  public void testVideoUpload()
+  public void testVideoUpload() throws FacebookApiException
   {
-    fail("Not implemented.");
-    /*
-     * TODO Translate $facebook = new FBRecordURL(array( "appId" =>
-     * self::APP_ID, "secret" => self::SECRET ));
-     * 
-     * $facebook->api(array("method" => "video.upload"));
-     * assertContains("//api-video.", $facebook->getRequestedURL(),
-     * "video.upload should go against api-video");
-     */
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    FBRecordURL facebook = new FBRecordURL(config, req,
+        new HttpServletResponseMock());
+    facebook.api(new HashMap<String, String>()
+    {
+      {
+        put("method", "video.upload");
+      }
+    });
+    assertTrue("video.upload should go against api-video", facebook
+        .getRequestedURL().indexOf("//api-video.") != -1);
   }
 
   /**
@@ -1058,18 +1065,15 @@ public class facebookTest
   @Test
   public void testGetUserAndAccessToken_Session()
   {
-    fail("Not implemented.");
-    /*
-     * TODO Translate $facebook = new PersistentFBPublic(array( "appId" =>
-     * self::APP_ID, "secret" => self::SECRET ));
-     * 
-     * $facebook->publicSetPersistentData("access_token",
-     * self::$kExpiredAccessToken);
-     * $facebook->publicSetPersistentData("user_id", 12345);
-     * assertEquals(self::$kExpiredAccessToken, $facebook->getAccessToken(),
-     * "Get access token from persistent store."); assertEquals("12345",
-     * $facebook->getUser(), "Get user id from persistent store.");
-     */
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    PersistentFBPublic facebook = new PersistentFBPublic(config, req,
+        new HttpServletResponseMock());
+    facebook.publicSetPersistentData("access_token", kExpiredAccessToken);
+    facebook.publicSetPersistentData("user_id", "12345");
+    assertEquals("Get access token from persistent store.",
+        kExpiredAccessToken, facebook.getAccessToken());
+    assertEquals("Get user id from persistent store.", 12345,
+        facebook.getUser());
   }
 
   /**

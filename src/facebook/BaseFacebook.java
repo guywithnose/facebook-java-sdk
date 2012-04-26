@@ -896,7 +896,7 @@ abstract public class BaseFacebook
         result.put("data", new JSONArray(response));
       } catch (JSONException e1)
       {
-        throwAPIException(result);
+        return new JSONObject();
       }
     }
 
