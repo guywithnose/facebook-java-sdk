@@ -16,7 +16,7 @@ if(isset($_SERVER['REQUEST_URI']))
       }
       else
       {
-        echo json_encode(array("error_code"=>190)); 
+        echo json_encode(array("error_code"=>190, "error_msg" => "Error validating access token")); 
       }
     }
   }

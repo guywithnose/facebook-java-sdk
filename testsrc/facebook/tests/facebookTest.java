@@ -1176,6 +1176,41 @@ public class facebookTest
 
   }
 
+  @Test
+  public void testAPI_BogusAccessTokenAndPreviouslySetCookies()
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    HttpServletResponseMock resp = new HttpServletResponseMock();
+    TransientFacebook facebook = new TransientFacebook(config, req, resp);
+
+    req.setRequestString("http://www.test.com/unit-tests.php");
+    facebook.setAccessToken("this-is-not-really-an-access-token");
+    req.addCookie("fbsr_" + APP_ID,"this-is-not-really-an-access-token");
+    req.addCookie("fbm_" + APP_ID,"base_domain=www.test3.com");
+    try
+    {
+      Object response = facebook.api(new HashMap<String, String>()
+      {
+        {
+          put("method", "fql.query");
+          put("query", "SELECT name FROM user WHERE uid=4");
+        }
+      });
+      fail("Should not get here.");
+    } catch (FacebookApiException e)
+    {
+      JSONObject result = e.getResult();
+      try
+      {
+        assertEquals(190, result.getInt("error_code"));
+      } catch (JSONException e1)
+      {
+        fail(e1.getMessage());
+      }
+    }
+    assertEquals("", resp.getCookie("fbm_" + APP_ID));
+  }
+
   /**
    * Sets up.
    */

@@ -1473,11 +1473,13 @@ abstract public class BaseFacebook
           && metadata.get("base_domain") != "")
       {
         base_domain = metadata.get("base_domain");
-        Cookie setCookie = new Cookie(cookie_name, "");
-        setCookie.setMaxAge(0);
-        setCookie.setPath("/");
-        setCookie.setDomain(base_domain);
       }
+
+      Cookie setCookie = new Cookie(getMetadataCookieName(), "");
+      setCookie.setMaxAge(0);
+      setCookie.setPath("/");
+      setCookie.setDomain(base_domain);
+      resp.addCookie(setCookie);
     }
 
   }

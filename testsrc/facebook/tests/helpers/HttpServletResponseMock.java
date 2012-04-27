@@ -6,6 +6,7 @@ package facebook.tests.helpers;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
+import java.util.ArrayList;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -56,6 +57,9 @@ public class HttpServletResponseMock implements HttpServletResponse
 
   /** The outputstreamwriter. */
   private PrintWriter outputstreamwriter = null;
+
+  /** The cookies. */
+  private ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 
   /*
    * (non-Javadoc)
@@ -203,7 +207,17 @@ public class HttpServletResponseMock implements HttpServletResponse
   @Override
   public void addCookie(Cookie arg0)
   {
-    // Do Nothing
+    cookies.add(arg0);
+  }
+
+  public String getCookie(String name)
+  {
+    for(Cookie cookie : cookies)
+    {
+      if(cookie.getName().equals(name))
+        return cookie.getValue();
+    }
+    return null;
   }
 
   /*
