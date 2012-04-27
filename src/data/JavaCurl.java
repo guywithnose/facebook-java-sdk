@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -187,6 +188,11 @@ public class JavaCurl
   {
     try
     {
+      int start = url.indexOf("://") + 3;
+      if(InetAddress.getByName(url.substring(start, url.indexOf("/", start))).getHostAddress().substring(0,6).equals("127.0."))
+      {
+        url = url.replace("https", "http");
+      }
       HttpURLConnection http = getConnection(url, certFile, password);
       http.setRequestMethod(method);
       http.setUseCaches(false);
