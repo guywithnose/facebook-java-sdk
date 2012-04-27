@@ -1,5 +1,5 @@
 <?
-usleep(50);
+usleep(100000);
 fileLog();
 
 if(isset($_SERVER['REQUEST_URI']))
