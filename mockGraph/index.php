@@ -59,6 +59,13 @@ if(isset($_SERVER['REQUEST_URI']))
     elseif(isset($_REQUEST['access_token']) && $_REQUEST['access_token'] == "117743971608120|943716006e74d9b9283d4d5d8ab93204" && isset($_REQUEST['method']) && $_REQUEST['method'] == "GET")
       echo json_encode(array("id"=>5526183,"name" => "Mark Zuckerberg")); 
   }
+  elseif($_SERVER['REQUEST_URI'] == "/daaku.shah")
+  {
+    if(isset($_REQUEST['access_token']) && $_REQUEST['access_token'] == "174236045938435|0073dce2d95c4a5c2922d1827ea0cca6")
+    {
+      echo json_encode(array("error"=>array("message"=>"An active access token must be used to query information about the current user.", "type"=>"invalid_request"))); 
+    }
+  }
 }
 
 function fileLog()
