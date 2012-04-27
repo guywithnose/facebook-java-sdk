@@ -41,7 +41,7 @@ import facebook.tests.helpers.TransientFacebook;
 public class facebookTest
 {
 
-  /** The AP p_ id. */
+  /** The app id. */
   private final String APP_ID = "117743971608120";
 
   /** The SECRET. */
@@ -562,6 +562,57 @@ public class facebookTest
       assertEquals("Expect the invalid session message.", msg, e.toString());
     }
 
+  }
+
+  /**
+   * Tests the graphAPI method using valid oauth.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testGraphAPI_ValidOAuthStringHashMap() throws JSONException, FacebookApiException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
+
+    JSONObject response = facebook.api("/jerry", new HashMap<String, String>());
+    assertEquals(214707, response.getLong("id"));
+  }
+
+  /**
+   * Tests the graphAPI method using valid oauth.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testGraphAPI_ValidOAuthStringString() throws JSONException, FacebookApiException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
+
+    JSONObject response = facebook.api("/jerry", "GET");
+    assertEquals(214707, response.getLong("id"));
+  }
+
+  /**
+   * Tests the graphAPI method using valid oauth.
+   * 
+   * @throws JSONException
+   *           the jSON exception
+   */
+  @Test
+  public void testGraphAPI_ValidOAuthStringStringHashMap() throws JSONException, FacebookApiException
+  {
+    HttpServletRequestMock req = new HttpServletRequestMock();
+    TransientFacebook facebook = new TransientFacebook(config, req,
+        new HttpServletResponseMock());
+
+    JSONObject response = facebook.api("/jerry", "GET", new HashMap<String, String>());
+    assertEquals(214707, response.getLong("id"));
   }
 
   /**

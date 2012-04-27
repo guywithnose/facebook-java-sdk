@@ -661,7 +661,7 @@ abstract public class BaseFacebook
   public JSONObject api(String path, HashMap<String, String> params)
       throws FacebookApiException
   {
-    return _graph(path, "POST", params);
+    return _graph(path, "GET", params);
   }
 
   /**
@@ -966,23 +966,6 @@ abstract public class BaseFacebook
       throws FacebookApiException
   {
     return _graph(path, method, new HashMap<String, String>());
-  }
-
-  /**
-   * _graph.
-   * 
-   * @param path
-   *          the path
-   * @param params
-   *          the params
-   * @return the jSON object
-   * @throws FacebookApiException
-   *           the facebook api exception
-   */
-  protected JSONObject _graph(String path, HashMap<String, String> params)
-      throws FacebookApiException
-  {
-    return _graph(path, "GET", new HashMap<String, String>());
   }
 
   /**
