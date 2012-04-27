@@ -31,8 +31,8 @@ public class FacebookApiException extends Exception
 
     try
     {
-      code = result.has("error_code") && result.getInt("error_code") != 0 ? Integer.valueOf(result
-          .getInt("error_code")) : 0;
+      code = result.has("error_code") ? result
+          .getInt("error_code") : 0;
 
       if (result.has("error_description"))
       {
