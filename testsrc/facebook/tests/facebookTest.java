@@ -457,7 +457,7 @@ public class facebookTest
         new HttpServletResponseMock());
 
     JSONObject response = facebook.api("/jerry");
-    assertEquals("should get expected id.", response.get("id"), "214707");
+    assertEquals("should get expected id.", "214707", response.get("id"));
   }
 
   /**
@@ -558,8 +558,7 @@ public class facebookTest
     } catch (FacebookApiException e)
     {
       // means the server got the access token
-      String msg = "invalid_request: An active access token must be used "
-          + "to query information about the current user.";
+      String msg = "invalid_request: An active access token must be used to query information about the current user.";
       assertEquals("Expect the invalid session message.", msg, e.toString());
     }
 
@@ -610,8 +609,8 @@ public class facebookTest
     FacebookApiException exception = null;
     try
     {
-      // we dont expect facebook will ever return in 50ms
-      BaseFacebook.timeout = 5;
+      // we dont expect facebook will ever return in 1ms
+      BaseFacebook.timeout = 1;
       facebook.api("/naitik");
     } catch (FacebookApiException e)
     {
@@ -643,15 +642,15 @@ public class facebookTest
 
     JSONObject response = facebook.api("/jerry");
     assertTrue("User ID should be public.", response.has("id"));
-    assertTrue("User\"s name should be public.", response.has("name"));
-    assertTrue("User\"s first name should be public.",
+    assertTrue("User\'s name should be public.", response.has("name"));
+    assertTrue("User\'s first name should be public.",
         response.has("first_name"));
-    assertTrue("User\"s last name should be public.", response.has("last_name"));
-    assertFalse("User\"s work history should only be available with "
+    assertTrue("User\'s last name should be public.", response.has("last_name"));
+    assertFalse("User\'s work history should only be available with "
         + "a valid access token.", response.has("work"));
-    assertFalse("User\"s education history should only be "
+    assertFalse("User\'s education history should only be "
         + "available with a valid access token.", response.has("education"));
-    assertFalse("User\"s verification status should only be "
+    assertFalse("User\'s verification status should only be "
         + "available with a valid access token.", response.has("verified"));
   }
 
