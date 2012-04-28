@@ -1248,18 +1248,6 @@ abstract public class BaseFacebook
    * 
    * @param name
    *          the name
-   * @return string The URL for the given parameters
-   */
-  protected String getUrl(String name)
-  {
-    return getUrl(name, "");
-  }
-
-  /**
-   * Build the URL for given domain alias, path and parameters.
-   * 
-   * @param name
-   *          the name
    * @param path
    *          the path
    * @return string The URL for the given parameters
