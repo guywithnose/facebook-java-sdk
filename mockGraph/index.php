@@ -70,11 +70,14 @@ if(isset($_SERVER['REQUEST_URI']))
 
 function fileLog()
 {
-$fp = fopen("log.txt", 'a');
-fwrite($fp, print_r($_REQUEST, true));
-fwrite($fp, "\n");
-fwrite($fp, print_r($_SERVER, true));
-fclose($fp);
+$fp = @fopen("log.txt", 'a');
+if($fp)
+{
+  fwrite($fp, print_r($_REQUEST, true));
+  fwrite($fp, "\n");
+  fwrite($fp, print_r($_SERVER, true));
+  fclose($fp);
+}
 }
 
 ?>
