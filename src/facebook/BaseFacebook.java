@@ -908,18 +908,6 @@ abstract public class BaseFacebook
    * 
    * @param path
    *          the path
-   * @return boolean true if this is video post
-   */
-  protected boolean isVideoPost(String path)
-  {
-    return isVideoPost(path, "GET");
-  }
-
-  /**
-   * Return true if this is video post.
-   * 
-   * @param path
-   *          the path
    * @param method
    *          the method
    * @return boolean true if this is video post
